@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Messaging;
+using Tumbler.Addin.Core;
 
 namespace Tumbler.Addin.Test
 {
@@ -10,6 +12,7 @@ namespace Tumbler.Addin.Test
     {
         static void Main(string[] args)
         {
+            
         }
     }
 }
