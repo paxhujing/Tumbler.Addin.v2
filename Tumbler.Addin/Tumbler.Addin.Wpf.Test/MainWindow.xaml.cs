@@ -22,7 +22,7 @@ namespace Tumbler.Addin.Wpf.Test
     {
         public MainWindow()
         {
-            InitializeComponent(); FrameworkElementAdapters
+            InitializeComponent(); 
         }
     }
 }

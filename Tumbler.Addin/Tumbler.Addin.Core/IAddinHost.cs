@@ -7,10 +7,14 @@ using System.Threading.Tasks;
 namespace Tumbler.Addin.Core
 {
     /// <summary>
-    /// 表示一个消息仲裁器。
-    /// 用于决定消息源、消息目标，以及如何在内部表示消息结构。
+    /// 表示承载插件的宿主。
     /// </summary>
-    public interface IMessageArbiter
+    public interface IAddinHost
     {
+        void Initialize();
+
+        Boolean Install();
+
+        Boolean Uninstall();
     }
 }

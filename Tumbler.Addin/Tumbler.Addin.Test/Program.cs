@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tumbler.Addin.Core;
+using Newtonsoft.Json;
 
 namespace Tumbler.Addin.Test
 {
@@ -13,14 +14,22 @@ namespace Tumbler.Addin.Test
     {
         static void Main(string[] args)
         {
-            for (int i = 0; i < 1000; i++)
-            {
-                var other = AppDomain.CreateDomain($"Test{i}", AppDomain.CurrentDomain.Evidence, new AppDomainSetup
-                {
-                    LoaderOptimization = LoaderOptimization.MultiDomainHost
-                });
-            }
+            Message message = new Message(Guid.NewGuid().ToString().Replace("-", String.Empty),
+                Guid.NewGuid().ToString().Replace("-", String.Empty),
+                new Test { Name = "HuJing", Birthday = DateTime.Now, Age = 24 });
+            MessageFormatter mf = new MessageFormatter();
+            Byte[] data = mf.Serialize(message);
+            message = mf.Deserialize(data);
+            Console.WriteLine("Hello World!"); 
         }
     }
 
+    class Test
+    {
+        public String Name { get; set; }
+
+        public DateTime Birthday { get; set; }
+
+        public Int32 Age { get; set; }
+    }
 }
