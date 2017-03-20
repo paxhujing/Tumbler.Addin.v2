@@ -10,17 +10,46 @@ using Newtonsoft.Json;
 
 namespace Tumbler.Addin.Test
 {
-    class Program
+    class Program : IAddinHost
     {
+        public Program()
+        {
+            MessageService = new MessageService(this);
+        }
+
+        public MessageService MessageService { get; }
+
         static void Main(string[] args)
         {
-            Message message = new Message(Guid.NewGuid().ToString().Replace("-", String.Empty),
-                Guid.NewGuid().ToString().Replace("-", String.Empty),
-                new Test { Name = "HuJing", Birthday = DateTime.Now, Age = 24 });
-            MessageFormatter mf = new MessageFormatter();
-            Byte[] data = mf.Serialize(message);
-            message = mf.Deserialize(data);
-            Console.WriteLine("Hello World!"); 
+            Program p = new Program();
+            Test t = new Test { Name = "hj", Birthday = DateTime.Now, Age = 12 };
+            String str = JsonConvert.SerializeObject(t);
+            p.Send(MessageService.AddinHostId, ContentType.JSON, str);
+            Console.WriteLine("Hello World!");
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Install()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnReceive(Message message)
+        {
+        }
+
+        public void Send(Message message)
+        {
+            MessageService.Send(message);
+        }
+
+        public bool Uninstall()
+        {
+            throw new NotImplementedException();
         }
     }
 

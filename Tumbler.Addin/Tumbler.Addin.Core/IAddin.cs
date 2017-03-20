@@ -14,12 +14,12 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 插件的ID号。
         /// </summary>
-        String ID { get; }
+        String Id { get; }
 
         /// <summary>
-        /// 与该插件关联的代表。
+        /// 与该插件关联的代理。
         /// </summary>
-        Delegator Delegator { get; }
+        AddinProxy Proxy { get; }
 
         /// <summary>
         /// 当接收到的消息时执行。
@@ -31,6 +31,6 @@ namespace Tumbler.Addin.Core
         /// 发送消息。
         /// </summary>
         /// <param name="message">消息。</param>
-        Boolean Send(Message message);
+        void Send(Message message);
     }
 }

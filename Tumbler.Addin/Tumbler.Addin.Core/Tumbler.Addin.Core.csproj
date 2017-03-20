@@ -44,13 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentType.cs" />
     <Compile Include="IAddin.cs" />
     <Compile Include="IAddinHost.cs" />
-    <Compile Include="Delegator.cs" />
+    <Compile Include="AddinProxy.cs" />
+    <Compile Include="MessageHelper.cs" />
     <Compile Include="MessageService.cs" />
     <Compile Include="IMessageTarget.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="MessageFormatter.cs" />
     <Compile Include="MessagePackage.cs" />
     <Compile Include="MessageMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
