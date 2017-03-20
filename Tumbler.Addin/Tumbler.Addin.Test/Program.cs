@@ -40,6 +40,7 @@ namespace Tumbler.Addin.Test
 
         public void OnReceive(Message message)
         {
+            String str = message.ReadAsString();
         }
 
         public void Send(Message message)

@@ -97,5 +97,15 @@ namespace Tumbler.Addin.Core
         {
             host.Send(destination, ContentType.None, String.Empty);
         }
+
+        /// <summary>
+        /// 按字符串方式读取消息内容。
+        /// </summary>
+        /// <param name="message">消息。</param>
+        /// <returns></returns>
+        public static String ReadAsString(this Message message)
+        {
+            return Encoding.UTF8.GetString(message.Content);
+        }
     }
 }
