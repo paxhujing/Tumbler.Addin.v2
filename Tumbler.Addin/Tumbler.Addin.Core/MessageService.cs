@@ -11,7 +11,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 消息服务，用于转发消息。
     /// </summary>
-    public class MessageService : AddinProxy
+    public sealed class MessageService : MarshalByRefObject
     {
         #region Fields
 
@@ -95,7 +95,7 @@ namespace Tumbler.Addin.Core
         /// 转发消息。
         /// </summary>
         /// <param name="message">消息。</param>
-        internal override void OnReceive(Message message)
+        internal void OnReceive(Message message)
         {
             Send(message);
         }
@@ -104,7 +104,7 @@ namespace Tumbler.Addin.Core
         /// 发送消息。
         /// </summary>
         /// <param name="message">消息。</param>
-        public override void Send(Message message)
+        public void Send(Message message)
         {
             String destination = message.Destination;
             if (String.IsNullOrWhiteSpace(destination)) return;

@@ -66,7 +66,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 所关联插件的ID号。
         /// </summary>
-        public string Id => _target.Id;
+        public String Id => _target.Id;
 
         /// <summary>
         /// 对象是否已被释放。
