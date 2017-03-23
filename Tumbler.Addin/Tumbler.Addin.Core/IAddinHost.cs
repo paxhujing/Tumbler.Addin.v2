@@ -27,6 +27,13 @@ namespace Tumbler.Addin.Core
         /// </summary>
         void Initialize();
 
+        /// <summary>
+        /// 加载插件。
+        /// </summary>
+        /// <param name="configFile">插件配置文件</param>
+        /// <returns>插件代理。</returns>
+        AddinProxy Load(String configFile);
+
         Boolean Install();
 
         Boolean Uninstall();

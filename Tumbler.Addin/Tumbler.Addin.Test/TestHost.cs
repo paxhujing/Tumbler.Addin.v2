@@ -48,5 +48,10 @@ namespace Tumbler.Addin.Test
         {
             throw new NotImplementedException();
         }
+
+        public AddinProxy Load(String configFile)
+        {
+            return null;
+        }
     }
 }

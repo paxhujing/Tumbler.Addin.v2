@@ -15,5 +15,10 @@ namespace Tumbler.Addin.Core
         /// 与该插件关联的代理。
         /// </summary>
         AddinProxy Proxy { get; }
+
+        /// <summary>
+        /// 卸载。
+        /// </summary>
+        void Unload();
     }
 }

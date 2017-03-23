@@ -34,6 +34,10 @@ namespace Tumbler.Addin.Test
         {
             Proxy.Send(message);
         }
+
+        public void Unload()
+        {
+        }
     }
 
 
