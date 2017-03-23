@@ -12,7 +12,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件代理。用于插件与宿主之间的通信。
     /// </summary>
-    public abstract class AddinProxy : MarshalByRefObject
+    public abstract class AddinProxy : MarshalByRefObject, IMessageSource, IMessageTarget
     {
         #region Fields
 
@@ -33,6 +33,7 @@ namespace Tumbler.Addin.Core
         {
             IAddin target = CreateAddin(this);
             if (target == null) throw new ArgumentNullException("target");
+            if (target.MessageDispatcher == null) throw new ArgumentNullException("target.MessageDispatcher");
             if (String.IsNullOrWhiteSpace(target.Id)
                 || target.Id == MessageService.AddinHostId
                 || target.Id == MessageService.AllTargetsId)
@@ -41,7 +42,7 @@ namespace Tumbler.Addin.Core
             }
             _target = target;
             Id = target.Id;
-            MessageDispather = new MessageDispathcer(target);
+            MessageDispatcher = target.MessageDispatcher;
         }
 
         #endregion
@@ -49,19 +50,19 @@ namespace Tumbler.Addin.Core
         #region Properties
 
         /// <summary>
-        /// 所关联插件的ID号。
+        /// 所关联插件的Id号。
         /// </summary>
         public String Id { get; }
+
+        /// <summary>
+        /// 消息调度器。
+        /// </summary>
+        public MessageDispatcher MessageDispatcher { get; }
 
         /// <summary>
         /// 消息服务。
         /// </summary>
         internal MessageService MessageService { get; set; }
-
-        /// <summary>
-        /// 消息调度器。
-        /// </summary>
-        internal MessageDispathcer MessageDispather { get;  }
 
         #endregion
 
@@ -81,12 +82,21 @@ namespace Tumbler.Addin.Core
         #region Internal
 
         /// <summary>
-        /// 将消息发送给消息中心，让其调度。
+        /// 将消息发送给消息中心让其调度。
         /// </summary>
         /// <param name="message">消息。</param>
-        internal void Send(Message message)
+        public void Send(Message message)
         {
-            MessageService?.OnReceive(message);
+            MessageService?.Transmit(message);
+        }
+
+        /// <summary>
+        /// 将消息转发给实际的对象。
+        /// </summary>
+        /// <param name="message">消息。</param>
+        public void OnReceive(Message message)
+        {
+            MessageDispatcher.Queue(message);
         }
 
         #endregion

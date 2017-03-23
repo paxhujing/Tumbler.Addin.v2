@@ -14,7 +14,7 @@ namespace Tumbler.Addin.Core
         #region Properties
 
         /// <summary>
-        /// 消息服务。
+        /// 消息中心。
         /// </summary>
         MessageService MessageService { get; }
 

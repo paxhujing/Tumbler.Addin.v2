@@ -10,10 +10,15 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 表示可以接收来自消息服务的消息。
     /// </summary>
-    public interface IMessageTarget
+    public interface IMessageTarget : IObjectIdentity
     {
         /// <summary>
-        /// 当处理接收到的消息时执行。
+        /// 消息调度器。
+        /// </summary>
+        MessageDispatcher MessageDispatcher { get; }
+
+        /// <summary>
+        /// 当收到的消息时执行。
         /// </summary>
         /// <param name="message">消息。</param>
         void OnReceive(Message message);

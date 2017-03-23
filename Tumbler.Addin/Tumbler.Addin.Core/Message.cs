@@ -18,9 +18,10 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="destination">消息目标。</param>
         /// <param name="source">消息源。</param>
+        /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source, ContentType contentType, params Byte[] content)
+        internal Message(String destination, String source,ContentType contentType, params Byte[] content)
         {
             if (String.IsNullOrWhiteSpace(destination)) throw new ArgumentNullException("destination");
             if (String.IsNullOrWhiteSpace(source)) throw new ArgumentNullException("source");
@@ -35,16 +36,27 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="destination">消息目标。</param>
         /// <param name="source">消息源。</param>
+        /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source, ContentType contentType, String content)
-            :this(destination,source,contentType,Encoding.UTF8.GetBytes(content))
+        internal Message(String destination, String source, Boolean isResponse, ContentType contentType, String content)
+            : this(destination, source, contentType, Encoding.UTF8.GetBytes(content))
         {
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// 是否是响应消息。
+        /// </summary>
+        public Boolean IsResponse { get; internal set; }
+
+        /// <summary>
+        /// 是否需要对方响应。
+        /// </summary>
+        public Boolean NeedResponse { get; internal set; }
 
         /// <summary>
         /// 消息目标。

@@ -49,6 +49,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAddinA.cs" />
+    <Compile Include="TestAddinB.cs" />
+    <Compile Include="TestHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

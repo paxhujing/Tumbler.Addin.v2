@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 消息调度器。
     /// </summary>
-    internal class MessageDispathcer : IDisposable
+    public sealed class MessageDispatcher
     {
         #region Fields
 
@@ -22,12 +22,12 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 消息调度任务。
         /// </summary>
-        private readonly Task _messageDispathTask;
+        private Task _messageDispathTask;
 
         /// <summary>
         /// 同步对象。
         /// </summary>
-        private readonly SemaphoreSlim _sync;
+        private SemaphoreSlim _sync;
 
         /// <summary>
         /// 回调方法。
@@ -42,13 +42,11 @@ namespace Tumbler.Addin.Core
         /// 初始化类型 Tumbler.Addin.Core.MessageDispathcer 实例。
         /// </summary>
         /// <param name="callback">回调方法。</param>
-        public MessageDispathcer(IMessageTarget target)
+        public MessageDispatcher(IMessageTarget target)
         {
             if (target == null) throw new ArgumentNullException("target");
             _target = target;
-            _sync = new SemaphoreSlim(0, 3);
             _queue = new Queue<Message>();
-            _messageDispathTask = new Task(DispathMessage, TaskCreationOptions.LongRunning);
         }
 
         #endregion
@@ -58,7 +56,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 对象是否已被释放。
         /// </summary>
-        public Boolean IsDisposed { get; private set; }
+        public Boolean IsRuning { get; private set; }
 
         #endregion
 
@@ -69,31 +67,36 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 启动调度器。
         /// </summary>
-        public void Start()
+        internal void Start()
         {
-            if (_messageDispathTask.Status == TaskStatus.Created)
+            if (_messageDispathTask == null)
             {
+                _sync = new SemaphoreSlim(0, 3);
+                _messageDispathTask = new Task(DispathMessage, TaskCreationOptions.LongRunning);
+                IsRuning = true;
                 _messageDispathTask.Start();
             }
         }
 
         /// <summary>
-        /// 停止并释放占用的资源。
+        /// 停止调度器。
         /// </summary>
-        public void Dispose()
+        internal void Stop()
         {
-            if (IsDisposed) return;
-            IsDisposed = true;
-            _sync.Release();
+            if (_messageDispathTask != null && _messageDispathTask.Status == TaskStatus.Running)
+            {
+                IsRuning = false;
+                _sync.Release();
+            }
         }
 
         /// <summary>
         /// 将消息在调度器中排队等待处理。
         /// </summary>
         /// <param name="message">消息的字节表示。</param>
-        internal virtual void Queue(Message message)
+        internal void Queue(Message message)
         {
-            if (IsDisposed) return;
+            if (!IsRuning) return;
             _queue.Enqueue(message);
             _sync.Release();
         }
@@ -108,15 +111,17 @@ namespace Tumbler.Addin.Core
         private void DispathMessage()
         {
             Message message;
-            while (!IsDisposed)
+            while (IsRuning)
             {
                 _sync.Wait();
                 if (_queue.Count == 0) continue;
                 message = _queue.Dequeue();
                 _target.OnReceive(message);
             }
+            _messageDispathTask = null;
             _queue.Clear();
             _sync.Dispose();
+            _sync = null;
         }
 
         #endregion

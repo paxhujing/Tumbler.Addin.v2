@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 namespace Tumbler.Addin.Core
 {
     /// <summary>
-    /// 表示可以向其它实现了 IMessageSource 接口的实例发送消息。
+    /// 表示该类型实例具有唯一的标识。
     /// </summary>
-    public interface IMessageSource : IObjectIdentity
+    public interface IObjectIdentity
     {
         /// <summary>
-        /// 发送消息。
+        /// 唯一标识。
         /// </summary>
-        /// <param name="message"></param>
-        void Send(Message message);
+        String Id { get; }
     }
 }

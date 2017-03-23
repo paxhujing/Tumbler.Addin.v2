@@ -25,17 +25,12 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 注册表。
         /// </summary>
-        private readonly Dictionary<String, AddinProxy> _regedit = new Dictionary<String, AddinProxy>();
+        private readonly Dictionary<String, IMessageTarget> _regedit = new Dictionary<String, IMessageTarget>();
 
         /// <summary>
         /// 宿主。
         /// </summary>
         private readonly IAddinHost _host;
-
-        /// <summary>
-        /// 为宿主服务的消息调度器。
-        /// </summary>
-        private readonly MessageDispathcer _messageDispather;
 
         #endregion
 
@@ -48,9 +43,9 @@ namespace Tumbler.Addin.Core
         public MessageService(IAddinHost host)
         {
             if(host == null) throw new ArgumentNullException("host");
+            if (host.MessageDispatcher == null) throw new ArgumentNullException("host.MessageDispatcher");
             _host = host;
-            _messageDispather = new MessageDispathcer(_host);
-            _messageDispather.Start();
+            host.MessageDispatcher.Start();
         }
 
         #endregion
@@ -62,19 +57,18 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 在消息服务中注册插件的代理，并启动代理的消息调度器。
         /// </summary>
-        /// <param name="proxy">代理。</param>
+        /// <param name="target">代理。</param>
         /// <returns>成功返回true；否则返回false。</returns>
-        public Boolean Register(AddinProxy proxy)
+        public Boolean Register(IMessageTarget target)
         {
-            String id = proxy.Id;
+            String id = target.Id;
             if (String.IsNullOrWhiteSpace(id)) return false;
-            if (_regedit.ContainsKey(id))
-            {
-                return _regedit[id] == proxy;
-            }
-            _regedit.Add(id, proxy);
-            proxy.MessageService = this;
-            proxy.MessageDispather.Start();
+            if (_regedit.ContainsKey(id)) throw new InvalidOperationException($"The id {id} has been Existed");
+            if (target.MessageDispatcher == null) throw new ArgumentNullException("target.MessageDispatcher");
+            AddinProxy proxy = target as AddinProxy;
+            if (proxy != null) proxy.MessageService = this;
+            _regedit.Add(id, target);
+            target.MessageDispatcher.Start();
             return true;
         }
 
@@ -85,10 +79,11 @@ namespace Tumbler.Addin.Core
         public void Unregister(String id)
         {
             if (String.IsNullOrWhiteSpace(id)) return;
-            AddinProxy proxy = _regedit[id];
+            IMessageTarget target = _regedit[id];
+            target.MessageDispatcher.Stop();
             _regedit.Remove(id);
-            proxy.MessageDispather.Dispose();
-            proxy.MessageService = null;
+            AddinProxy proxy = target as AddinProxy;
+            if (proxy != null) proxy.MessageService = null;
         }
 
         #endregion
@@ -99,33 +94,24 @@ namespace Tumbler.Addin.Core
         /// 转发消息。
         /// </summary>
         /// <param name="message">消息。</param>
-        internal void OnReceive(Message message)
-        {
-            Send(message);
-        }
-
-        /// <summary>
-        /// 发送消息。
-        /// </summary>
-        /// <param name="message">消息。</param>
-        public void Send(Message message)
+        public void Transmit(Message message)
         {
             String destination = message.Destination;
             if (String.IsNullOrWhiteSpace(destination)) return;
-            if (destination == AddinHostId)
+            if (destination == AddinHostId || destination == _host.Id)
             {
-                _messageDispather.Queue(message);
+                _host.MessageDispatcher.Queue(message);
             }
             else if (destination == AllTargetsId)
             {
                 foreach (String id in _regedit.Keys.Where(x => x != message.Source))
                 {
-                    _regedit[id].MessageDispather.Queue(message);
+                    _regedit[id].MessageDispatcher.Queue(message);
                 }
             }
             else if (_regedit.ContainsKey(destination))
             {
-                _regedit[destination].MessageDispather.Queue(message);
+                _regedit[destination].MessageDispatcher.Queue(message);
             }
         }
 
