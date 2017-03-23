@@ -20,7 +20,7 @@ namespace Tumbler.Addin.Core
         /// <param name="source">消息源。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        public Message(String destination, String source, ContentType contentType, params Byte[] content)
+        internal Message(String destination, String source, ContentType contentType, params Byte[] content)
         {
             if (String.IsNullOrWhiteSpace(destination)) throw new ArgumentNullException("destination");
             if (String.IsNullOrWhiteSpace(source)) throw new ArgumentNullException("source");
@@ -37,7 +37,7 @@ namespace Tumbler.Addin.Core
         /// <param name="source">消息源。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        public Message(String destination, String source, ContentType contentType, String content)
+        internal Message(String destination, String source, ContentType contentType, String content)
             :this(destination,source,contentType,Encoding.UTF8.GetBytes(content))
         {
         }

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace Tumbler.Addin.Core
 {
     /// <summary>
-    /// 表示一个插件。
+    /// 表示可以向其它实现了 IMessageSource 接口的实例发送消息。
     /// </summary>
-    public interface IAddin : IMessageTarget, IMessageSource
+    public interface IMessageSource
     {
         /// <summary>
-        /// 与该插件关联的代理。
+        /// 唯一标识。
         /// </summary>
-        AddinProxy Proxy { get; }
+        String Id { get; }
     }
 }

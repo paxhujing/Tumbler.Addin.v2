@@ -21,11 +21,18 @@ namespace Tumbler.Addin.Test
 
         static void Main(string[] args)
         {
+            AddinAProxy proxy = new AddinAProxy();
+
             Program p = new Program();
+            p.MessageService.Register(proxy);
+
             Test t = new Test { Name = "hj", Birthday = DateTime.Now, Age = 12 };
             String str = JsonConvert.SerializeObject(t);
-            p.Send(MessageService.AddinHostId, ContentType.JSON, str);
-            Console.WriteLine("Hello World!");
+            Message message = p.CreateMessage(proxy.Id, ContentType.JSON, str);
+
+            p.Send(message);
+
+            Console.ReadKey();
         }
 
         public void Initialize()
@@ -61,5 +68,31 @@ namespace Tumbler.Addin.Test
         public DateTime Birthday { get; set; }
 
         public Int32 Age { get; set; }
+    }
+
+    class AddinA : IAddin
+    {
+        public AddinA(AddinProxy proxy)
+        {
+            Proxy = proxy;
+        }
+
+        public string Id { get; } = "0FAEE6AA-72BA-4E13-8689-2B1F86A2502C";
+
+        public AddinProxy Proxy { get;}
+
+        public void OnReceive(Message message)
+        {
+            Message responseMessage = message.CreateResponseMessage(ContentType.Text, "hujing");
+            this.SendMessage(responseMessage);
+        }
+    }
+
+    class AddinAProxy : AddinProxy
+    {
+        protected override IAddin CreateAddin(AddinProxy proxy)
+        {
+            return new AddinA(proxy);
+        }
     }
 }

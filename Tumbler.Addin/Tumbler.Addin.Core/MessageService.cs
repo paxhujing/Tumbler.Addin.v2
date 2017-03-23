@@ -15,9 +15,6 @@ namespace Tumbler.Addin.Core
     {
         #region Fields
 
-        /// <summary>
-        /// 表示消息的目标是宿主。
-        /// </summary>
         public const String AddinHostId = ".";
 
         /// <summary>
@@ -35,6 +32,11 @@ namespace Tumbler.Addin.Core
         /// </summary>
         private readonly IAddinHost _host;
 
+        /// <summary>
+        /// 为宿主服务的消息调度器。
+        /// </summary>
+        private readonly MessageDispathcer _messageDispather;
+
         #endregion
 
         #region Constructors
@@ -47,6 +49,8 @@ namespace Tumbler.Addin.Core
         {
             if(host == null) throw new ArgumentNullException("host");
             _host = host;
+            _messageDispather = new MessageDispathcer(_host);
+            _messageDispather.Start();
         }
 
         #endregion
@@ -56,40 +60,40 @@ namespace Tumbler.Addin.Core
         #region Public
 
         /// <summary>
-        /// 在消息服务中注册一位代表。
+        /// 在消息服务中注册插件的代理，并启动代理的消息调度器。
         /// </summary>
-        /// <param name="delegator">代表。</param>
+        /// <param name="proxy">代理。</param>
         /// <returns>成功返回true；否则返回false。</returns>
-        public Boolean Register(AddinProxy delegator)
+        public Boolean Register(AddinProxy proxy)
         {
-            String id = delegator.Id;
+            String id = proxy.Id;
             if (String.IsNullOrWhiteSpace(id)) return false;
             if (_regedit.ContainsKey(id))
             {
-                try
-                {
-                    return _regedit[id] == delegator;
-                }//对象已失效
-                catch(RemotingException)
-                {
-                    _regedit.Remove(id);
-                    _regedit.Add(id, delegator);
-                    return true;
-                }
+                return _regedit[id] == proxy;
             }
-            _regedit.Add(id, delegator);
+            _regedit.Add(id, proxy);
+            proxy.MessageService = this;
+            proxy.MessageDispather.Start();
             return true;
         }
 
         /// <summary>
-        /// 将代表从消息服务中移除。
+        /// 将代理从消息服务中移除，并释放代理的消息调度器。。
         /// </summary>
-        /// <param name="id">所代表对象的ID号。</param>
+        /// <param name="id">所代表对象的Id号。</param>
         public void Unregister(String id)
         {
             if (String.IsNullOrWhiteSpace(id)) return;
+            AddinProxy proxy = _regedit[id];
             _regedit.Remove(id);
+            proxy.MessageDispather.Dispose();
+            proxy.MessageService = null;
         }
+
+        #endregion
+
+        #region Internal
 
         /// <summary>
         /// 转发消息。
@@ -110,18 +114,18 @@ namespace Tumbler.Addin.Core
             if (String.IsNullOrWhiteSpace(destination)) return;
             if (destination == AddinHostId)
             {
-                _host.OnReceive(message);
+                _messageDispather.Queue(message);
             }
             else if (destination == AllTargetsId)
             {
                 foreach (String id in _regedit.Keys.Where(x => x != message.Source))
                 {
-                    _regedit[id].OnReceive(message);
+                    _regedit[id].MessageDispather.Queue(message);
                 }
             }
             else if (_regedit.ContainsKey(destination))
             {
-                _regedit[destination].OnReceive(message);
+                _regedit[destination].MessageDispather.Queue(message);
             }
         }
 

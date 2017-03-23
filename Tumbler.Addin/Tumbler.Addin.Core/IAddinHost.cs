@@ -9,7 +9,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 表示承载插件的宿主。
     /// </summary>
-    public interface IAddinHost
+    public interface IAddinHost : IMessageTarget
     {
         #region Properties
 
@@ -27,21 +27,15 @@ namespace Tumbler.Addin.Core
         /// </summary>
         void Initialize();
 
-        /// <summary>
-        /// 收到来自其它插件的消息。
-        /// </summary>
-        /// <param name="message">消息。</param>
-        void OnReceive(Message message);
-
-        /// <summary>
-        /// 将消息发给其它插件。
-        /// </summary>
-        /// <param name="message"></param>
-        void Send(Message message);
-
         Boolean Install();
 
         Boolean Uninstall();
+
+        /// <summary>
+        /// 发送消息。
+        /// </summary>
+        /// <param name="message">消息。</param>
+        void Send(Message message);
 
         #endregion
     }
