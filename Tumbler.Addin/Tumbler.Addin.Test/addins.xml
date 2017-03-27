@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<host xmlns="http://tempuri.org/AddinConfigSchema.xsd">
+  <addinGroup>
+    <addins name="menu">
+      <!--<sub name="manager" lazyLoad="true">
+        <addin location=""/>
+        <addin location=""/>
+      </sub>
+      <addin location=""/>
+      <addin location=""/>
+      <addin location=""/>-->
+    </addins>
+  </addinGroup>
+</host> 

@@ -54,6 +54,9 @@
     <Compile Include="TestHost.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AddinConfigSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -62,6 +65,11 @@
       <Project>{4B86F318-9368-4547-AE7E-BCAB48C35E62}</Project>
       <Name>Tumbler.Addin.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="addins.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

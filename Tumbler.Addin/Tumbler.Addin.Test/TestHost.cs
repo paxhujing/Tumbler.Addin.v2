@@ -49,7 +49,7 @@ namespace Tumbler.Addin.Test
             throw new NotImplementedException();
         }
 
-        public AddinProxy Load(String configFile)
+        public IEnumerable<AddinProxy> Load(String configFile)
         {
             return null;
         }

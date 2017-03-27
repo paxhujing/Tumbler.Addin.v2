@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="AddinConfigSchema"
+    targetNamespace="http://tempuri.org/AddinConfigSchema.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/AddinConfigSchema.xsd"
+    xmlns:mstns="http://tempuri.org/AddinConfigSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="host">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="addinGroup" type="addinGroupType" minOccurs="0"/>
+        <xs:element name="services" type="servicesType" minOccurs="0"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="addinGroupType">
+    <xs:sequence>
+      <xs:element name="addins" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="sub" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="addin" type="addinType" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="name" type="nameType" use="required"/>
+                <xs:attribute name="lazyLoad" type="xs:boolean" default="true" use="optional"/>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="addin" type="addinType" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+          <xs:attribute name="name" type="nameType" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="nameType">
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="collapse"/>
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="addinType">
+    <xs:attribute name="location" type="xs:anyURI" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="servicesType">
+    <xs:sequence>
+      <xs:element name="service" type="serviceType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="serviceType">
+    <xs:attribute name="location" type="xs:anyURI" use="required"/>
+    <xs:attribute name="name" type="nameType" use="required" />
+  </xs:complexType>
+
+</xs:schema>

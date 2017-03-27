@@ -32,7 +32,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="configFile">插件配置文件</param>
         /// <returns>插件代理。</returns>
-        AddinProxy Load(String configFile);
+        IEnumerable<AddinProxy> Load(String configFile);
 
         Boolean Install();
 
