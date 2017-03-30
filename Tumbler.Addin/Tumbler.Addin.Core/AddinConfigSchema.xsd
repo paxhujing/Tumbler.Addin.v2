@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:element name="addin">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="info" minOccurs="0"/>
+      </xs:all>
+      <xs:attribute name="id" type="notEmptyStringType" use="required"/>
+      <xs:attribute name="type" type="notEmptyStringType" use="required"/>
+      <xs:attribute name="version" type="notEmptyStringType" use="optional" default="1.0"/>
+      <xs:attribute name="updateUrl" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="notEmptyStringType">
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="collapse"/>
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="info">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="name" type="xs:string" />
+        <xs:element name="author" type="xs:string"/>
+        <xs:element name="copyright" type="xs:string"/>
+        <xs:element name="url" type="xs:string"/>
+        <xs:element name="description" type="xs:string"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

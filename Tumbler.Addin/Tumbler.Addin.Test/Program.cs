@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Tumbler.Addin.Core;
-using Newtonsoft.Json;
 
 namespace Tumbler.Addin.Test
 {
@@ -16,6 +9,10 @@ namespace Tumbler.Addin.Test
 
         static void Main(string[] args)
         {
+            AddinConfigParser parser = new AddinConfigParser(@"E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\addins.xml");
+            var c = parser.GetSubAddins("menu", "gis");
+            var b = parser.GetServices();
+
             TestAddinAProxy proxyA = new TestAddinAProxy();
             TestAddinBProxy proxyB = new TestAddinBProxy();
 

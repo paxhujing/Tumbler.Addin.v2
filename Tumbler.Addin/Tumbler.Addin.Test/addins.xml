@@ -1,14 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<host xmlns="http://tempuri.org/AddinConfigSchema.xsd">
-  <addinGroup>
-    <addins name="menu">
-      <!--<sub name="manager" lazyLoad="true">
+<host>
+  <addinGroups>
+    <addinGroup name="resourceTree">
+      <addin location=""/>
+    </addinGroup>
+    <addinGroup name="menu">
+      <sub name="gis">
+        <addin location=""/>
+        <addin location=""/>
+        <addin location=""/>
+        <addin location=""/>
+        <addin location=""/>
+        <addin location=""/>
+      </sub>
+      <sub name="management">
         <addin location=""/>
         <addin location=""/>
       </sub>
       <addin location=""/>
       <addin location=""/>
-      <addin location=""/>-->
-    </addins>
-  </addinGroup>
+      <addin location=""/>
+    </addinGroup>
+    <addinGroup name="alarmList">
+      <addin location=""/>
+    </addinGroup>
+  </addinGroups>
+
+  <services>
+    <service name="1" location=""/>
+  </services>
 </host> 
