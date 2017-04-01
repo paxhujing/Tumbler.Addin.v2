@@ -22,6 +22,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessage(this IMessageSource source, String destination, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             if (content == null || content.Length == 0)
@@ -40,6 +41,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessage(this IMessageSource source, String destination, Boolean needResponse, ContentType contentType, String content)
         {
             Byte[] data = Encoding.UTF8.GetBytes(content);
@@ -54,6 +56,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToHost(this IMessageSource source, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             return CreateMessage(source, MessageService.AddinHostId, needResponse, contentType, content);
@@ -67,6 +70,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToHost(this IMessageSource source, Boolean needResponse, ContentType contentType, String content)
         {
             return CreateMessage(source, MessageService.AddinHostId, needResponse, contentType, content);
@@ -80,6 +84,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToAll(this IMessageSource source, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             return CreateMessage(source, MessageService.AllTargetsId, needResponse, contentType, content);
@@ -93,6 +98,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToAll(this IMessageSource source, Boolean needResponse, ContentType contentType, String content)
         {
             return CreateMessage(source, MessageService.AllTargetsId, needResponse, contentType, content);
@@ -107,6 +113,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessage(this IAddinHost host, String destination, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             if (content == null || content.Length == 0)
@@ -125,6 +132,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessage(this IAddinHost host, String destination, Boolean needResponse, ContentType contentType, String content)
         {
             Byte[] data = Encoding.UTF8.GetBytes(content);
@@ -139,6 +147,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToAll(this IAddinHost host, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             return CreateMessage(host, MessageService.AllTargetsId, needResponse, contentType, content);
@@ -152,6 +161,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMessageToAll(this IAddinHost host, Boolean needResponse, ContentType contentType, String content)
         {
             return CreateMessage(host, MessageService.AllTargetsId, needResponse, contentType, content);
@@ -165,6 +175,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>响应消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateResponseMessage(this Message requestMessage, Boolean needResponse, ContentType contentType, params Byte[] content)
         {
             if (!requestMessage.NeedResponse) throw new InvalidOperationException("The request mesage doesn't mark as need response");
@@ -183,6 +194,7 @@ namespace Tumbler.Addin.Core
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>响应消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateResponseMessage(this Message requestMessage, Boolean needResponse, ContentType contentType, String content)
         {
             Byte[] data = Encoding.UTF8.GetBytes(content);

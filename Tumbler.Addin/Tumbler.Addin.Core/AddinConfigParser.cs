@@ -27,15 +27,13 @@ namespace Tumbler.Addin.Core
 
         private const String addinGroupsNodeName = "addinGroups";
 
-        private const String AddinNodeName = "addin";
+        internal const String AddinNodeName = "addin";
 
-        private const String ServiceNodeName = "service";
+        internal const String ServiceNodeName = "service";
 
         private const String AddinGroupNodeName = "addinGroup";
 
         private const String AddinGroupSubNodeName = "sub";
-
-        private readonly XmlSchemaSet _addinXmlSchema;
 
         #endregion
 
@@ -56,11 +54,6 @@ namespace Tumbler.Addin.Core
             doc.Validate(schemaSet, ValidationEventHandler);
             _addinGroups = doc.Root.Element(addinGroupsNodeName);
             _services = doc.Root.Element(ServicesNodeName);
-
-            stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.AddinConfigSchema.xsd");
-            schemaXml = XmlReader.Create(stream);
-            _addinXmlSchema = new XmlSchemaSet();
-            _addinXmlSchema.Add(null, schemaXml);
         }
 
         #endregion
@@ -74,7 +67,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="groupName">组名称。</param>
         /// <returns>插件节点。</returns>
-        public IEnumerable<XElement> GetAddins(String groupName)
+        public IEnumerable<XElement> GetAddinNodes(String groupName)
         {
             XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
@@ -86,7 +79,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="groupName">子组名称。</param>
         /// <returns>子组节点。</returns>
-        public IEnumerable<XElement> GetSubs(String groupName)
+        public IEnumerable<XElement> GetSubNodes(String groupName)
         {
             XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
@@ -99,7 +92,7 @@ namespace Tumbler.Addin.Core
         /// <param name="groupName">组名称。</param>
         /// <param name="subName">子组名称。</param>
         /// <returns>插件节点。</returns>
-        public IEnumerable<XElement> GetSubAddins(String groupName, String subName)
+        public IEnumerable<XElement> GetSubAddinNodes(String groupName, String subName)
         {
             XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
@@ -112,7 +105,7 @@ namespace Tumbler.Addin.Core
         /// 获取服务节点。
         /// </summary>
         /// <returns>服务节点。</returns>
-        public IEnumerable<XElement> GetServices()
+        public IEnumerable<XElement> GetServiceNodes()
         {
             return _services.Elements(ServiceNodeName);
         }

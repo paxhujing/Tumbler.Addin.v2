@@ -33,7 +33,6 @@ namespace Tumbler.Addin.Core
         {
             IAddin target = CreateAddin(this);
             if (target == null) throw new ArgumentNullException("target");
-            if (target.MessageDispatcher == null) throw new ArgumentNullException("target.MessageDispatcher");
             if (String.IsNullOrWhiteSpace(target.Id)
                 || target.Id == MessageService.AddinHostId
                 || target.Id == MessageService.AllTargetsId)
@@ -68,23 +67,13 @@ namespace Tumbler.Addin.Core
 
         #region Methods
 
-        #region Protected
-
-        /// <summary>
-        /// 创建插件。
-        /// </summary>
-        /// <param name="proxy">与插件关联的代理。</param>
-        /// <returns>插件。</returns>
-        protected abstract IAddin CreateAddin(AddinProxy proxy);
-
-        #endregion
-
-        #region Internal
+        #region Public
 
         /// <summary>
         /// 将消息发送给消息中心让其调度。
         /// </summary>
         /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Send(Message message)
         {
             MessageService?.Transmit(message);
@@ -94,10 +83,32 @@ namespace Tumbler.Addin.Core
         /// 将消息转发给实际的对象。
         /// </summary>
         /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void OnReceive(Message message)
         {
-            MessageDispatcher.Queue(message);
+            MessageDispatcher?.Queue(message);
         }
+
+        /// <summary>
+        /// 当插件实例被创建时调用该方法。
+        /// </summary>
+        public virtual void Load() { }
+
+        /// <summary>
+        /// 当插件实例被卸载时调用该方法。
+        /// </summary>
+        public virtual void Unload() { }
+
+        #endregion
+
+        #region Protected
+
+        /// <summary>
+        /// 创建插件。
+        /// </summary>
+        /// <param name="proxy">与插件关联的代理。</param>
+        /// <returns>插件。</returns>
+        protected abstract IAddin CreateAddin(AddinProxy proxy);
 
         #endregion
 

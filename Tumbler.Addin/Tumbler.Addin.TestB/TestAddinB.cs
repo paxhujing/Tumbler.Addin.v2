@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tumbler.Addin.Core;
 
-namespace Tumbler.Addin.Test
+namespace Tumbler.Addin.TestB
 {
     public class TestAddinB : IAddin
     {
@@ -42,15 +42,6 @@ namespace Tumbler.Addin.Test
 
         public void Unload()
         {
-        }
-    }
-
-
-    public class TestAddinBProxy : AddinProxy
-    {
-        protected override IAddin CreateAddin(AddinProxy proxy)
-        {
-            return new TestAddinB(proxy);
         }
     }
 }

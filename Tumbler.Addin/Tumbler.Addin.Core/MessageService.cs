@@ -15,6 +15,9 @@ namespace Tumbler.Addin.Core
     {
         #region Fields
 
+        /// <summary>
+        /// 表示消息的目标是宿主。
+        /// </summary>
         public const String AddinHostId = ".";
 
         /// <summary>
@@ -43,7 +46,6 @@ namespace Tumbler.Addin.Core
         public MessageService(IAddinHost host)
         {
             if(host == null) throw new ArgumentNullException("host");
-            if (host.MessageDispatcher == null) throw new ArgumentNullException("host.MessageDispatcher");
             _host = host;
             host.MessageDispatcher.Start();
         }
@@ -64,11 +66,10 @@ namespace Tumbler.Addin.Core
             String id = target.Id;
             if (String.IsNullOrWhiteSpace(id)) return false;
             if (_regedit.ContainsKey(id)) throw new InvalidOperationException($"The id {id} has been Existed");
-            if (target.MessageDispatcher == null) throw new ArgumentNullException("target.MessageDispatcher");
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null) proxy.MessageService = this;
             _regedit.Add(id, target);
-            target.MessageDispatcher.Start();
+            target.MessageDispatcher?.Start();
             return true;
         }
 
@@ -79,8 +80,9 @@ namespace Tumbler.Addin.Core
         public void Unregister(String id)
         {
             if (String.IsNullOrWhiteSpace(id)) return;
+            if (!_regedit.ContainsKey(id)) return;
             IMessageTarget target = _regedit[id];
-            target.MessageDispatcher.Stop();
+            target.MessageDispatcher?.Stop();
             _regedit.Remove(id);
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null) proxy.MessageService = null;

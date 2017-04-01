@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tumbler.Addin.Wpf.Test", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tumbler.Addin.Core", "Tumbler.Addin.Core\Tumbler.Addin.Core.csproj", "{4B86F318-9368-4547-AE7E-BCAB48C35E62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tumbler.Addin.TestA", "Tumbler.Addin.TestA\Tumbler.Addin.TestA.csproj", "{AA9CF1FD-A04D-4298-BEE3-C7557518A46E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tumbler.Addin.TestB", "Tumbler.Addin.TestB\Tumbler.Addin.TestB.csproj", "{FA764723-46E4-4A4B-81B8-7CA4D0FE17E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{4B86F318-9368-4547-AE7E-BCAB48C35E62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B86F318-9368-4547-AE7E-BCAB48C35E62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B86F318-9368-4547-AE7E-BCAB48C35E62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA9CF1FD-A04D-4298-BEE3-C7557518A46E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA9CF1FD-A04D-4298-BEE3-C7557518A46E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA9CF1FD-A04D-4298-BEE3-C7557518A46E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA9CF1FD-A04D-4298-BEE3-C7557518A46E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA764723-46E4-4A4B-81B8-7CA4D0FE17E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA764723-46E4-4A4B-81B8-7CA4D0FE17E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA764723-46E4-4A4B-81B8-7CA4D0FE17E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA764723-46E4-4A4B-81B8-7CA4D0FE17E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

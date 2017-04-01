@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 消息调度器。
     /// </summary>
-    public sealed class MessageDispatcher
+    public sealed class MessageDispatcher : MarshalByRefObject
     {
         #region Fields
 
@@ -67,6 +67,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 启动调度器。
         /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         internal void Start()
         {
             if (_messageDispathTask == null)
@@ -81,6 +82,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 停止调度器。
         /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         internal void Stop()
         {
             if (_messageDispathTask != null && _messageDispathTask.Status == TaskStatus.Running)
@@ -94,6 +96,7 @@ namespace Tumbler.Addin.Core
         /// 将消息在调度器中排队等待处理。
         /// </summary>
         /// <param name="message">消息的字节表示。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         internal void Queue(Message message)
         {
             if (!IsRuning) return;

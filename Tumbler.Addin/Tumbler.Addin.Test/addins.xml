@@ -2,31 +2,31 @@
 <host>
   <addinGroups>
     <addinGroup name="resourceTree">
-      <addin location=""/>
+      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testC.xml"/>
     </addinGroup>
     <addinGroup name="menu">
       <sub name="gis">
-        <addin location=""/>
-        <addin location=""/>
-        <addin location=""/>
-        <addin location=""/>
-        <addin location=""/>
-        <addin location=""/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testC.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
       </sub>
       <sub name="management">
-        <addin location=""/>
-        <addin location=""/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
       </sub>
-      <addin location=""/>
-      <addin location=""/>
-      <addin location=""/>
+      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
     </addinGroup>
     <addinGroup name="alarmList">
-      <addin location=""/>
+      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
     </addinGroup>
   </addinGroups>
 
   <services>
-    <service name="1" location=""/>
+    <service location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
   </services>
 </host> 
