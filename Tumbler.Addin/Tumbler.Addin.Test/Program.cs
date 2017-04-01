@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Tumbler.Addin.Core;
 
@@ -10,20 +11,13 @@ namespace Tumbler.Addin.Test
 
         static void Main(string[] args)
         {
-            AddinConfigParser parser = new AddinConfigParser(@"E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\bin\Debug\addins\addins.xml");
-            AddinLoader loader = new AddinLoader();
-            var c = parser.GetAddinNodes("menu");
-            AddinProxy addin = null;
-            AppDomain domain = null;
-            //var b = parser.GetServiceNodes();
-            foreach (XElement addinNode in c)
+            AddinManager manager = new AddinManager(_host, "addins.xml");
+            IEnumerable<AddinProxy> proxies = manager.LoadAddins("menu");
+            manager.Unload(proxies);
+            foreach (AddinProxy proxy in proxies)
             {
-                addin = loader.LoadAddin(addinNode, out domain);
-                if (addin == null) continue;
-                _host.MessageService.Register(addin);
-                Console.WriteLine(addin.Id);
+                Console.WriteLine(proxy.Id);
             }
-
             //_host.MessageService.Register(proxyA);
             //_host.MessageService.Register(proxyB);
 

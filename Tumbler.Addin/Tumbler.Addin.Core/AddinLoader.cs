@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,16 +16,9 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件加载器。
     /// </summary>
-    public class AddinLoader
+    internal class AddinLoader
     {
         #region Fields
-
-        /// <summary>
-        /// 默认全局插件配置文件路径。
-        /// </summary>
-        public static readonly String DefaultDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins");
-
-        private readonly Dictionary<AddinProxy, AppDomain> _addinRecords = new Dictionary<AddinProxy, AppDomain>();
 
         private readonly XmlSchemaSet _addinXmlSchema;
 
@@ -53,38 +47,34 @@ namespace Tumbler.Addin.Core
         ///加载插件。
         /// </summary>
         /// <param name="addinNode">插件节点。</param>
-        /// <param name="appDomain">插件所在应用程序域。</param>
         /// <returns>插件代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public AddinProxy LoadAddin(XElement addinNode,out AppDomain appDomain)
+        public AddinProxy LoadAddin(XElement addinNode)
         {
-            appDomain = null;
             if (addinNode.Name != AddinConfigParser.AddinNodeName) return null;
             String directory;
             XDocument doc = GetAddinConfigImpl(addinNode, out directory);
             if (doc == null) return null;
             String type = doc.Root.Attribute("type").Value;
             String id = doc.Root.Attribute("id").Value;
-            return CreateAppDomain(id, type, directory, out appDomain);
+            return CreateAppDomain(id, type, directory);
         }
 
         /// <summary>
         /// 加载服务。
         /// </summary>
         /// <param name="serviceNode">服务节点。</param>
-        /// <param name="appDomain">服务所在应用程序域。</param>
         /// <returns>服务代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public AddinProxy LoadService(XElement serviceNode, out AppDomain appDomain)
+        public AddinProxy LoadService(XElement serviceNode)
         {
-            appDomain = null;
             if (serviceNode.Name != AddinConfigParser.ServiceNodeName) return null;
             String directory;
             XDocument doc = GetAddinConfigImpl(serviceNode, out directory);
             if (doc == null) return null;
             String type = doc.Root.Attribute("type").Value;
             String id = doc.Root.Attribute("id").Value;
-            return CreateAppDomain(id, type, directory, out appDomain);
+            return CreateAppDomain(id, type, directory);
         }
 
         /// <summary>
@@ -94,11 +84,12 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Unload(AddinProxy addinProxy)
         {
-            if (_addinRecords.ContainsKey(addinProxy))
-            {
-                AppDomain domain = _addinRecords[addinProxy];
-                AppDomain.Unload(domain);
-            }
+            if (addinProxy == null) throw new ArgumentNullException("addinProxy");
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"Destroy addin {addinProxy.Id} and owner {addinProxy.Owner.FriendlyName}");
+#endif
+            addinProxy.Unload();
+            AppDomain.Unload(addinProxy.Owner);
         }
 
         #endregion
@@ -114,7 +105,7 @@ namespace Tumbler.Addin.Core
             {
                 if (!Path.IsPathRooted(location))
                 {
-                    location = Path.Combine(DefaultDirectory, location);
+                    location = Path.Combine(AddinConfigParser.DefaultDirectory, location);
                 }
                 XDocument config = XDocument.Load(location);
                 config.Validate(_addinXmlSchema, ValidationEventHandler);
@@ -140,9 +131,8 @@ namespace Tumbler.Addin.Core
         }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private AddinProxy CreateAppDomain(String id, String type, String directory,out AppDomain appDomain)
+        private AddinProxy CreateAppDomain(String id, String type, String directory)
         {
-            appDomain = null;
             Int32 index = type.IndexOf(',');
             String typeName = type.Substring(0, index);
             String assemblyName = type.Substring(index + 1);
@@ -154,9 +144,11 @@ namespace Tumbler.Addin.Core
             {
                 AddinProxy proxy = (AddinProxy)domain.CreateInstanceAndUnwrap(assemblyName, typeName + "Proxy");
                 if (proxy.Id != id) throw new InvalidDataException("The id in config not match");
-                appDomain = domain;
-                _addinRecords.Add(proxy, domain);
+                proxy.Owner = domain;
                 proxy.Load();
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine($"Created addin {proxy.Id} in {domain.FriendlyName}");
+#endif
                 return proxy;
             }
             catch (Exception ex)

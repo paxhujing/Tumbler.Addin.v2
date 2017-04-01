@@ -15,9 +15,14 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件配置解析器。
     /// </summary>
-    public class AddinConfigParser
+    internal class AddinConfigParser
     {
         #region Fields
+
+        /// <summary>
+        /// 默认全局插件配置文件路径。
+        /// </summary>
+        public static readonly String DefaultDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins");
 
         private XElement _addinGroups;
 
@@ -49,7 +54,11 @@ namespace Tumbler.Addin.Core
             XmlReader schemaXml = XmlReader.Create(stream);
             XmlSchemaSet schemaSet = new XmlSchemaSet();
             schemaSet.Add(null, schemaXml);
-            
+
+            if (!Path.IsPathRooted(configFile))
+            {
+                configFile = Path.Combine(DefaultDirectory, configFile);
+            }
             XDocument doc = XDocument.Load(configFile);
             doc.Validate(schemaSet, ValidationEventHandler);
             _addinGroups = doc.Root.Element(addinGroupsNodeName);
@@ -67,6 +76,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="groupName">组名称。</param>
         /// <returns>插件节点。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetAddinNodes(String groupName)
         {
             XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
@@ -79,12 +89,12 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="groupName">子组名称。</param>
         /// <returns>子组节点。</returns>
-        public IEnumerable<XElement> GetSubNodes(String groupName)
-        {
-            XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
-            if (addinGroupNode == null) return null;
-            return addinGroupNode.Elements(AddinGroupSubNodeName);
-        }
+        //public IEnumerable<XElement> GetSubNodes(String groupName)
+        //{
+        //    XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
+        //    if (addinGroupNode == null) return null;
+        //    return addinGroupNode.Elements(AddinGroupSubNodeName);
+        //}
 
         /// <summary>
         /// 获取插件组中子组的插件节点。
@@ -92,6 +102,7 @@ namespace Tumbler.Addin.Core
         /// <param name="groupName">组名称。</param>
         /// <param name="subName">子组名称。</param>
         /// <returns>插件节点。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetSubAddinNodes(String groupName, String subName)
         {
             XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
@@ -105,6 +116,7 @@ namespace Tumbler.Addin.Core
         /// 获取服务节点。
         /// </summary>
         /// <returns>服务节点。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetServiceNodes()
         {
             return _services.Elements(ServiceNodeName);
@@ -114,6 +126,7 @@ namespace Tumbler.Addin.Core
 
         #region Private
 
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         private void ValidationEventHandler(Object sender, ValidationEventArgs e)
         {
             throw new XmlSchemaValidationException(e.Message);

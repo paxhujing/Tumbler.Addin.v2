@@ -83,14 +83,9 @@ namespace Tumbler.Addin.Core
             if (!_regedit.ContainsKey(id)) return;
             IMessageTarget target = _regedit[id];
             target.MessageDispatcher?.Stop();
-            _regedit.Remove(id);
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null) proxy.MessageService = null;
         }
-
-        #endregion
-
-        #region Internal
 
         /// <summary>
         /// 转发消息。
@@ -106,9 +101,9 @@ namespace Tumbler.Addin.Core
             }
             else if (destination == AllTargetsId)
             {
-                foreach (String id in _regedit.Keys.Where(x => x != message.Source))
+                foreach (IMessageTarget target in _regedit.Values.Where(x => x.Id != message.Source))
                 {
-                    _regedit[id].MessageDispatcher.Queue(message);
+                    target.MessageDispatcher.Queue(message);
                 }
             }
             else if (_regedit.ContainsKey(destination))
