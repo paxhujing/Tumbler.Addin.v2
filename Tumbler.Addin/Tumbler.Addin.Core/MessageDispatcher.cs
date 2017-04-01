@@ -62,7 +62,7 @@ namespace Tumbler.Addin.Core
 
         #region Methods
 
-        #region Public
+        #region Internal
 
         /// <summary>
         /// 启动调度器。
@@ -111,6 +111,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 分发消息。
         /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         private void DispathMessage()
         {
             Message message;

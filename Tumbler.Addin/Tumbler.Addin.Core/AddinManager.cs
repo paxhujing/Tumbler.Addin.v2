@@ -103,6 +103,7 @@ namespace Tumbler.Addin.Core
         /// 卸载插件。
         /// </summary>
         /// <param name="proxy">插件代理。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Unload(AddinProxy proxy)
         {
             if (proxy == null) return;
@@ -114,6 +115,7 @@ namespace Tumbler.Addin.Core
         /// 卸载插件。
         /// </summary>
         /// <param name="proxies">一组插件代理。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Unload(IEnumerable<AddinProxy> proxies)
         {
             foreach (AddinProxy proxy in proxies)
