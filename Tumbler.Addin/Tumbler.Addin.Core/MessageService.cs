@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,14 +62,22 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="target">代理。</param>
         /// <returns>成功返回true；否则返回false。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public Boolean Register(IMessageTarget target)
         {
             String id = target.Id;
             if (String.IsNullOrWhiteSpace(id)) return false;
             if (_regedit.ContainsKey(id)) throw new InvalidOperationException($"The id {id} has been Existed");
             AddinProxy proxy = target as AddinProxy;
-            if (proxy != null) proxy.MessageService = this;
-            _regedit.Add(id, target);
+            if (proxy != null)
+            {
+                proxy.MessageService = this;
+                proxy.Owner.DomainUnload += Owner_DomainUnload;
+            }
+            lock (_regedit)
+            {
+                _regedit.Add(id, target);
+            }
             target.MessageDispatcher?.Start();
             return true;
         }
@@ -77,11 +86,17 @@ namespace Tumbler.Addin.Core
         /// 将代理从消息服务中移除，并释放代理的消息调度器。。
         /// </summary>
         /// <param name="id">所代表对象的Id号。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Unregister(String id)
         {
             if (String.IsNullOrWhiteSpace(id)) return;
-            if (!_regedit.ContainsKey(id)) return;
-            IMessageTarget target = _regedit[id];
+            IMessageTarget target = null;
+            lock (_regedit)
+            {
+                if (!_regedit.ContainsKey(id)) return;
+                target = _regedit[id];
+                _regedit.Remove(id);
+            }
             target.MessageDispatcher?.Stop();
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null) proxy.MessageService = null;
@@ -91,6 +106,8 @@ namespace Tumbler.Addin.Core
         /// 转发消息。
         /// </summary>
         /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Transmit(Message message)
         {
             String destination = message.Destination;
@@ -99,16 +116,62 @@ namespace Tumbler.Addin.Core
             {
                 _host.MessageDispatcher.Queue(message);
             }
-            else if (destination == AllTargetsId)
+            else
             {
-                foreach (IMessageTarget target in _regedit.Values.Where(x => x.Id != message.Source))
+                TransmitSpecialMessage(message);
+            }
+        }
+
+        #endregion
+
+        #region Private
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private void TransmitSpecialMessage(Message message)
+        {
+            if (message.Destination == AllTargetsId)
+            {
+                TransmitSameMessageToSomeone(message, _regedit.Keys.ToArray());
+            }
+            else
+            {
+                String[] destinations = message.Destination.Split(new Char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                TransmitSameMessageToSomeone(message, destinations);
+            }
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private void TransmitSameMessageToSomeone(Message message, params String[] destinations)
+        {
+            lock (_regedit)
+            {
+                foreach (String destination in destinations)
                 {
-                    target.MessageDispatcher.Queue(message);
+                    if (!_regedit.ContainsKey(destination)) continue;
+                    message.Destination = destination;
+                    _regedit[destination].MessageDispatcher.Queue(message);
                 }
             }
-            else if (_regedit.ContainsKey(destination))
+        }
+
+        private void Owner_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        {
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private void Owner_DomainUnload(object sender, EventArgs e)
+        {
+            AppDomain domain = (AppDomain)sender;
+            String id = domain.SetupInformation.AppDomainInitializerArguments[0];
+            Unregister(id);
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private void Owner_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            lock (_regedit)
             {
-                _regedit[destination].MessageDispatcher.Queue(message);
+                
             }
         }
 

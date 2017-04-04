@@ -24,15 +24,11 @@ namespace Tumbler.Addin.TestB
         public void OnReceive(Message message)
         {
             Console.WriteLine($"TestAddinB Receive message from {message.Source}");
-            Console.WriteLine($"\tNeedResponse:{message.NeedResponse}");
             Console.WriteLine($"\tIsResponse:{message.IsResponse}");
             Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
             Console.WriteLine($"\tContentLength:{message.Content.Length}");
-            if (message.NeedResponse)
-            {
-                Message responseMessage = message.CreateResponseMessage(false, ContentType.Text, new Byte[3]);
-                Send(responseMessage);
-            }
+            Message responseMessage = message.CreateResponseMessage(ContentType.Text, new Byte[3]);
+            Send(responseMessage);
         }
 
         public void Send(Message message)

@@ -24,8 +24,8 @@ namespace Tumbler.Addin.TestA
 
         public void OnReceive(Message message)
         {
+            throw new ArgumentNullException();
             Console.WriteLine($"TestAddinA Receive message from {message.Source}");
-            Console.WriteLine($"\tNeedResponse:{message.NeedResponse}");
             Console.WriteLine($"\tIsResponse:{message.IsResponse}");
             Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
             Console.WriteLine($"\tContentLength:{message.Content.Length}");

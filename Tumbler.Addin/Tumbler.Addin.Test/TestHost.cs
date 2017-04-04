@@ -33,7 +33,6 @@ namespace Tumbler.Addin.Test
         public void OnReceive(Message message)
         {
             Console.WriteLine($"Host Receive message from {message.Source}");
-            Console.WriteLine($"\tNeedResponse:{message.NeedResponse}");
             Console.WriteLine($"\tIsResponse:{message.IsResponse}");
             Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
             Console.WriteLine($"\tContentLength:{message.Content.Length}");

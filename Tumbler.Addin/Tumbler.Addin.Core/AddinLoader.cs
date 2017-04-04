@@ -55,9 +55,7 @@ namespace Tumbler.Addin.Core
             String directory;
             XDocument doc = GetAddinConfigImpl(addinNode, out directory);
             if (doc == null) return null;
-            String type = doc.Root.Attribute("type").Value;
-            String id = doc.Root.Attribute("id").Value;
-            return CreateAppDomain(id, type, directory);
+            return CreateAppDomain(doc, directory);
         }
 
         /// <summary>
@@ -72,9 +70,7 @@ namespace Tumbler.Addin.Core
             String directory;
             XDocument doc = GetAddinConfigImpl(serviceNode, out directory);
             if (doc == null) return null;
-            String type = doc.Root.Attribute("type").Value;
-            String id = doc.Root.Attribute("id").Value;
-            return CreateAppDomain(id, type, directory);
+            return CreateAppDomain(doc, directory);
         }
 
         /// <summary>
@@ -131,14 +127,22 @@ namespace Tumbler.Addin.Core
         }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private AddinProxy CreateAppDomain(String id, String type, String directory)
+        private AddinProxy CreateAppDomain(XDocument doc, String directory)
         {
+            String type = doc.Root.Attribute("type").Value;
+            String id = doc.Root.Attribute("id").Value;
             Int32 index = type.IndexOf(',');
             String typeName = type.Substring(0, index);
             String assemblyName = type.Substring(index + 1);
             if (String.IsNullOrWhiteSpace(typeName) || String.IsNullOrWhiteSpace(assemblyName)) return null;
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationBase = directory;
+            XElement addinInfo = doc.Root.Element("info");
+            if (addinInfo != null)
+            {
+                setup.AppDomainInitializerArguments = new String[] { id };
+                setup.ApplicationName = addinInfo.Element("name")?.Value;
+            }
             AppDomain domain = AppDomain.CreateDomain($"AddinDomain#{id}", null, setup);
             try
             {
