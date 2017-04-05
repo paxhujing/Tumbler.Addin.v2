@@ -117,11 +117,22 @@ namespace Tumbler.Addin.Core
         /// 在租约管理器中，该对象永不过期，必须显示移除其根。
         /// </summary>
         /// <returns>对象租约。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public override Object InitializeLifetimeService()
         {
             ILease lease = (ILease)base.InitializeLifetimeService();
             lease.InitialLeaseTime = TimeSpan.FromMilliseconds(0);
             return lease;
+        }
+
+        /// <summary>
+        /// 获取对象的字符串表示。
+        /// </summary>
+        /// <returns>对象的字符串表示。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public override String ToString()
+        {
+            return Id;
         }
 
         #endregion

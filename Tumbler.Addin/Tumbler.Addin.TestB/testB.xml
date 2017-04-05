@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<addin id="74D56627-BD68-4C0F-B006-AB643E72DB8B" type="Tumbler.Addin.TestB.TestAddinB,Tumbler.Addin.TestB" updateUrl="">
+<addin id="74D56627-BD68-4C0F-B006-AB643E72DB8B" type="Tumbler.Addin.TestB.Int32Calculator,Tumbler.Addin.TestB" updateUrl="">
   <info>
     <name></name>
     <author></author>

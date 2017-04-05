@@ -136,6 +136,9 @@ namespace Tumbler.Addin.Core
         {
             String destination = message.Destination;
             if (String.IsNullOrWhiteSpace(destination)) return;
+#if DEBUG
+            Console.WriteLine($"[{message.Id}]Transmit message from {message.Source} to {message.Destination}");
+#endif
             if (destination == AddinHostId || destination == _host.Id)
             {
                 _host.MessageDispatcher.Queue(message);

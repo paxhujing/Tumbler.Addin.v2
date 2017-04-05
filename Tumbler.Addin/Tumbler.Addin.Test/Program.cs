@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -26,19 +27,23 @@ namespace Tumbler.Addin.Test
             //_host.Send(message);
             //Console.ReadKey();
 
-            Message message = _host.CreateBroadcastMessage(ContentType.JSON, new Byte[2]);
+            Double[] a = new Double[] { 1.0, 2.0, 3.0 };
+            String json = JsonConvert.SerializeObject(a);
+            Message message = _host.CreateBroadcastMessage(ContentType.JSON, json);
             _host.Send(message);
             Console.ReadKey();
 
             Console.Clear();
-            _host.MessageService.Unregister(proxies[0].Id);
-            message = _host.CreateBroadcastMessage( ContentType.JSON, new Byte[2]);
+            Int32[] b = new Int32[] { 10, 20, 30 };
+            json = JsonConvert.SerializeObject(b);
+            //_host.MessageService.Unregister(proxies[0].Id);
+            message = _host.CreateBroadcastMessage( ContentType.JSON, json);
             _host.Send(message);
             Console.ReadKey();
 
             Console.Clear();
             _host.MessageService.Register(proxies[0]);
-            message = _host.CreateBroadcastMessage(ContentType.JSON, new Byte[2]);
+            message = _host.CreateBroadcastMessage(ContentType.JSON, json);
             _host.Send(message);
             Console.ReadKey();
 

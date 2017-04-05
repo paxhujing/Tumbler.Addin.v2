@@ -34,14 +34,18 @@ namespace Tumbler.Addin.Test
         {
             if (message.IsFailed)
             {
-                Console.WriteLine($"Host request to {message.Source} failed.{message.Exception}");
+                Console.WriteLine($"[{message.Id}]Process message {message.Source} failed.\r\n\t{message.Exception}");
             }
             else
             {
-                Console.WriteLine($"Host Receive message from {message.Source}");
-                Console.WriteLine($"\tIsResponse:{message.IsResponse}");
-                Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
-                Console.WriteLine($"\tContentLength:{message.Content.Length}");
+                if (message.IsResponse)
+                {
+                    Console.WriteLine($"[{message.Id}]Response from {message.Source}.\r\n\t{message.ReadAsString()}");
+                }
+                else
+                {
+                    Console.WriteLine($"[{message.Id}]Addin request from {message.Source}.\r\n\t{message.ReadAsString()}");
+                }
             }
         }
 

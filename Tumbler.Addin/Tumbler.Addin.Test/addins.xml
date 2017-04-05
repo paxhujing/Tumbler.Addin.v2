@@ -1,32 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <host>
   <addinGroups>
-    <addinGroup name="resourceTree">
-      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testC.xml"/>
-    </addinGroup>
     <addinGroup name="menu">
-      <sub name="gis">
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testC.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-      </sub>
-      <sub name="management">
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-        <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-      </sub>
-      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-    </addinGroup>
-    <addinGroup name="alarmList">
-      <addin location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
+      <addin location="testA\testA.xml"/>
+      <addin location="testB\testB.xml"/>
     </addinGroup>
   </addinGroups>
-
-  <services>
-    <service location="E:\Tumbler.Addin.v2\Tumbler.Addin\Tumbler.Addin.Test\testA.xml"/>
-  </services>
 </host> 

@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Tumbler.Addin.Core;
 
-namespace Tumbler.Addin.TestA
+namespace Tumbler.Addin.TestB
 {
-
-    public class TestAddinAProxy : AddinProxy
+    public class Int32CalculatorProxy : AddinProxy
     {
         protected override IAddin CreateAddin(AddinProxy proxy)
         {
-            return new TestAddinA(proxy);
+            return new Int32Calculator(proxy);
         }
     }
 }
