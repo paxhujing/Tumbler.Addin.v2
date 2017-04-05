@@ -24,5 +24,10 @@ namespace Tumbler.Addin.Wpf.Test
         {
             InitializeComponent(); 
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            throw new ArgumentException();
+        }
     }
 }

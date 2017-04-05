@@ -32,10 +32,17 @@ namespace Tumbler.Addin.Test
 
         public void OnReceive(Message message)
         {
-            Console.WriteLine($"Host Receive message from {message.Source}");
-            Console.WriteLine($"\tIsResponse:{message.IsResponse}");
-            Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
-            Console.WriteLine($"\tContentLength:{message.Content.Length}");
+            if (message.IsFailed)
+            {
+                Console.WriteLine($"Host request to {message.Source} failed.{message.Exception}");
+            }
+            else
+            {
+                Console.WriteLine($"Host Receive message from {message.Source}");
+                Console.WriteLine($"\tIsResponse:{message.IsResponse}");
+                Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
+                Console.WriteLine($"\tContentLength:{message.Content.Length}");
+            }
         }
 
         public void Send(Message message)

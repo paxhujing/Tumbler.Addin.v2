@@ -82,7 +82,7 @@ namespace Tumbler.Addin.Core
         {
             if (addinProxy == null) throw new ArgumentNullException("addinProxy");
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine($"Destroy addin {addinProxy.Id} and owner {addinProxy.Owner.FriendlyName}");
+            Console.WriteLine($"Destroy addin {addinProxy.Id} and owner {addinProxy.Owner.FriendlyName}");
 #endif
             addinProxy.Unload();
             AppDomain.Unload(addinProxy.Owner);
@@ -151,7 +151,7 @@ namespace Tumbler.Addin.Core
                 proxy.Owner = domain;
                 proxy.Load();
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine($"Created addin {proxy.Id} in {domain.FriendlyName}");
+                Console.WriteLine($"Created addin {proxy.Id} in {domain.FriendlyName}");
 #endif
                 return proxy;
             }

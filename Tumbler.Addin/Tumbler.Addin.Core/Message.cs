@@ -70,7 +70,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 消息的唯一标识。
         /// </summary>
-        public Int32 Id { get; internal set; }
+        public Int32 Id { get; internal set; } = Guid.NewGuid().GetHashCode();
 
         /// <summary>
         /// 是否是响应消息。
@@ -112,6 +112,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="info">SerializationInfo 类型实例。</param>
         /// <param name="context">StreamingContext 类型实例。</param>
+        [SecurityPermission(SecurityAction.Demand, RemotingConfiguration = true, SerializationFormatter = true)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Id", Id);

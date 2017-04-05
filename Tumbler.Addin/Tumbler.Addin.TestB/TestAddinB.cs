@@ -27,13 +27,18 @@ namespace Tumbler.Addin.TestB
             Console.WriteLine($"\tIsResponse:{message.IsResponse}");
             Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
             Console.WriteLine($"\tContentLength:{message.Content.Length}");
-            Message responseMessage = message.CreateResponseMessage(ContentType.Text, new Byte[3]);
+            Message responseMessage = message.CreateErrorResponseMessage(new ArgumentException("Invalid time"));
             Send(responseMessage);
         }
 
         public void Send(Message message)
         {
             Proxy.Send(message);
+        }
+
+
+        public void Load()
+        {
         }
 
         public void Unload()

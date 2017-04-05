@@ -14,16 +14,11 @@ namespace Tumbler.Addin.Test
         {
             AddinManager manager = new AddinManager(_host, "addins.xml");
             AddinProxy[] proxies = manager.LoadAddins("menu").ToArray();
-            //manager.Unload(proxies);
-            //foreach (AddinProxy proxy in proxies)
-            //{
-            //    Console.WriteLine(proxy.Id);
-            //}
             String[] a = { "0FAEE6AA-72BA-4E13-8689-2B1F86A2502C", "74D56627-BD68-4C0F-B006-AB643E72DB8B","" };
             Message message = _host.CreateMulticastMessage(a, ContentType.JSON, new Byte[10]);
             _host.Send(message);
-            //manager.Unload(proxies[0]);
-            //_host.Send(message);
+            manager.Unload(proxies[0]);
+            _host.Send(message);
             Console.ReadKey();
 
             message = _host.CreateUnicastMessage(proxies[1].Id, ContentType.JSON, new Byte[5]);

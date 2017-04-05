@@ -13,6 +13,18 @@ namespace Tumbler.Addin.Core
     {
         #region Message
 
+        /// <summary>
+        /// 创建错误消息。
+        /// </summary>
+        /// <param name="source">请求消息。</param>
+        /// <param name="ex">异常信息。</param>
+        /// <returns>错误信息。</returns>
+        public static Message CreateErrorMessage(this IMessageSource source, Exception ex)
+        {
+            if (ex == null) throw new ArgumentNullException("ex");
+            return new Message(MessageService.AddinHostId, source.Id, ContentType.None) { Exception = ex };
+        }
+
         #region Request
 
         /// <summary>
@@ -23,7 +35,7 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMessageToHost(this IMessageSource source, ContentType contentType, params Byte[] content)
+        public static Message CreateMessage(this IMessageSource source, ContentType contentType, params Byte[] content)
         {
             return CreateMessage(source, MessageService.AddinHostId, contentType, content);
         }
@@ -36,7 +48,7 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMessageToHost(this IMessageSource source, ContentType contentType, String content)
+        public static Message CreateMessage(this IMessageSource source, ContentType contentType, String content)
         {
             return CreateMessage(source, MessageService.AddinHostId, contentType, content);
         }
@@ -233,9 +245,9 @@ namespace Tumbler.Addin.Core
         {
             if (content == null || content.Length == 0)
             {
-                return new Message(destination, source.Id, ContentType.None, content) { Id = Guid.NewGuid().GetHashCode() };
+                return new Message(destination, source.Id, ContentType.None, content);
             }
-            return new Message(destination, source.Id, contentType, content) { Id = Guid.NewGuid().GetHashCode() };
+            return new Message(destination, source.Id, contentType, content);
         }
 
         /// <summary>

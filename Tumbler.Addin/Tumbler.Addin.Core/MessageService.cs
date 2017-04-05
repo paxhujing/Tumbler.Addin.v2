@@ -58,6 +58,24 @@ namespace Tumbler.Addin.Core
         #region Public
 
         /// <summary>
+        /// 获取指定的消息目标对象。
+        /// </summary>
+        /// <param name="id">消息目标的id号。</param>
+        /// <returns>IMessageTarget 类型实例。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IMessageTarget GetTarget(String id)
+        {
+            lock (_regedit)
+            {
+                if (_regedit.ContainsKey(id))
+                {
+                    return _regedit[id];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 在消息服务中注册插件的代理，并启动代理的消息调度器。
         /// </summary>
         /// <param name="target">代理。</param>
@@ -67,18 +85,21 @@ namespace Tumbler.Addin.Core
         {
             String id = target.Id;
             if (String.IsNullOrWhiteSpace(id)) return false;
-            if (_regedit.ContainsKey(id)) throw new InvalidOperationException($"The id {id} has been Existed");
+            lock (_regedit)
+            {
+                if (_regedit.ContainsKey(id)) throw new InvalidOperationException($"The id {id} has been Existed");
+                _regedit.Add(id, target);
+            }
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null)
             {
                 proxy.MessageService = this;
-                proxy.Owner.DomainUnload += Owner_DomainUnload;
-            }
-            lock (_regedit)
-            {
-                _regedit.Add(id, target);
+                proxy.Owner.DomainUnload += OnDomainUnload;
             }
             target.MessageDispatcher?.Start();
+#if DEBUG
+            Console.WriteLine($"Register target.{target.Id}");
+#endif
             return true;
         }
 
@@ -100,6 +121,9 @@ namespace Tumbler.Addin.Core
             target.MessageDispatcher?.Stop();
             AddinProxy proxy = target as AddinProxy;
             if (proxy != null) proxy.MessageService = null;
+#if DEBUG
+            Console.WriteLine($"Unregister target.{target.Id}");
+#endif
         }
 
         /// <summary>
@@ -132,11 +156,14 @@ namespace Tumbler.Addin.Core
             if (message.Destination == AllTargetsId)
             {
                 TransmitSameMessageToSomeone(message, _regedit.Keys.ToArray());
+                message.Destination = AllTargetsId;
             }
             else
             {
+                String temp = message.Destination;
                 String[] destinations = message.Destination.Split(new Char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 TransmitSameMessageToSomeone(message, destinations);
+                message.Destination = temp;
             }
         }
 
@@ -154,25 +181,12 @@ namespace Tumbler.Addin.Core
             }
         }
 
-        private void Owner_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
-        {
-        }
-
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private void Owner_DomainUnload(object sender, EventArgs e)
+        private void OnDomainUnload(object sender, EventArgs e)
         {
             AppDomain domain = (AppDomain)sender;
             String id = domain.SetupInformation.AppDomainInitializerArguments[0];
             Unregister(id);
-        }
-
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private void Owner_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            lock (_regedit)
-            {
-                
-            }
         }
 
         #endregion

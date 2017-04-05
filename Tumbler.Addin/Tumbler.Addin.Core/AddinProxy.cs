@@ -98,12 +98,20 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 当插件实例被创建时调用该方法。
         /// </summary>
-        public virtual void Load() { }
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public void Load()
+        {
+            _target.Load();
+        }
 
         /// <summary>
         /// 当插件实例被卸载时调用该方法。
         /// </summary>
-        public virtual void Unload() { }
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public void Unload()
+        {
+            _target.Unload();
+        }
 
         /// <summary>
         /// 在租约管理器中，该对象永不过期，必须显示移除其根。

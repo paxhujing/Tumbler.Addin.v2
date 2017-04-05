@@ -24,7 +24,7 @@ namespace Tumbler.Addin.TestA
 
         public void OnReceive(Message message)
         {
-            throw new ArgumentNullException();
+            //System.Threading.ThreadPool.QueueUserWorkItem((o) => { throw new ArgumentNullException(); });
             Console.WriteLine($"TestAddinA Receive message from {message.Source}");
             Console.WriteLine($"\tIsResponse:{message.IsResponse}");
             Console.WriteLine($"\tContentType:{message.ContentType.ToString()}");
@@ -34,6 +34,10 @@ namespace Tumbler.Addin.TestA
         public void Send(Message message)
         {
             Proxy.Send(message);
+        }
+
+        public void Load()
+        {
         }
 
         public void Unload()
