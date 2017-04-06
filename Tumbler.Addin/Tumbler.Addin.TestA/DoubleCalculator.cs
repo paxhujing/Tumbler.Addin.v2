@@ -8,20 +8,17 @@ using Tumbler.Addin.Core;
 
 namespace Tumbler.Addin.TestA
 {
+    [AddinProxy(typeof(DoubleCalculatorProxy))]
     public class DoubleCalculator : IAddin
     {
-
-        public DoubleCalculator(AddinProxy proxy)
+        public DoubleCalculator()
         {
-            Proxy = proxy;
             MessageDispatcher = new MessageDispatcher(this);
         }
 
         public string Id { get; } = "0FAEE6AA-72BA-4E13-8689-2B1F86A2502C";
 
         public MessageDispatcher MessageDispatcher { get; }
-
-        public AddinProxy Proxy { get; }
 
         public void OnReceive(Message message)
         {
@@ -44,13 +41,9 @@ namespace Tumbler.Addin.TestA
             {
                 response = message.CreateErrorResponseMessage(new ArgumentException("Only json format allowed"));
             }
-            this.Send(response);
+            this.SendMessage(response);
         }
 
-        public void Send(Message message)
-        {
-            Proxy.Send(message);
-        }
 
         public void Load()
         {

@@ -12,14 +12,11 @@ namespace Tumbler.Addin.Test
         public TestHost()
         {
             MessageDispatcher = new MessageDispatcher(this);
-            MessageService = new MessageService(this);
         }
 
         public String Id => MessageService.AddinHostId;
 
         public MessageDispatcher MessageDispatcher { get; }
-
-        public MessageService MessageService { get; }
 
         public void Initialize()
         {
@@ -49,19 +46,9 @@ namespace Tumbler.Addin.Test
             }
         }
 
-        public void Send(Message message)
-        {
-            MessageService.Transmit(message);
-        }
-
         public bool Uninstall()
         {
             throw new NotImplementedException();
-        }
-
-        public IEnumerable<AddinProxy> Load(String configFile)
-        {
-            return null;
         }
     }
 }

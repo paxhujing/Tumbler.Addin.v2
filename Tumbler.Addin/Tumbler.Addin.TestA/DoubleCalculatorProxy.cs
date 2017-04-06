@@ -7,12 +7,11 @@ using Tumbler.Addin.Core;
 
 namespace Tumbler.Addin.TestA
 {
-
     public class DoubleCalculatorProxy : AddinProxy
     {
-        protected override IAddin CreateAddin(AddinProxy proxy)
+        public DoubleCalculatorProxy()
+            :base(new DoubleCalculator())
         {
-            return new DoubleCalculator(proxy);
         }
     }
 }

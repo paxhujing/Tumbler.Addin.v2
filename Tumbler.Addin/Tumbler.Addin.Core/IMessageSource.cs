@@ -11,10 +11,5 @@ namespace Tumbler.Addin.Core
     /// </summary>
     public interface IMessageSource : IObjectIdentity
     {
-        /// <summary>
-        /// 发送消息。
-        /// </summary>
-        /// <param name="message"></param>
-        void Send(Message message);
     }
 }

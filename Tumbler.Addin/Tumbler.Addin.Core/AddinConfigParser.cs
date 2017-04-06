@@ -20,9 +20,9 @@ namespace Tumbler.Addin.Core
         #region Fields
 
         /// <summary>
-        /// 默认全局插件配置文件路径。
+        /// 插件目录。
         /// </summary>
-        public static readonly String DefaultDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins");
+        public static readonly String AddinDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addins");
 
         private XElement _addinGroups;
 
@@ -57,7 +57,7 @@ namespace Tumbler.Addin.Core
 
             if (!Path.IsPathRooted(configFile))
             {
-                configFile = Path.Combine(DefaultDirectory, configFile);
+                configFile = Path.Combine(AddinDirectory, configFile);
             }
             XDocument doc = XDocument.Load(configFile);
             doc.Validate(schemaSet, ValidationEventHandler);

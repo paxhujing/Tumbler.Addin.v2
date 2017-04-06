@@ -10,17 +10,14 @@ namespace Tumbler.Addin.TestB
 {
     public class Int32Calculator : IAddin
     {
-        public Int32Calculator(AddinProxy proxy)
+        public Int32Calculator()
         {
-            Proxy = proxy;
             MessageDispatcher = new MessageDispatcher(this);
         }
 
         public string Id { get; } = "74D56627-BD68-4C0F-B006-AB643E72DB8B";
 
         public MessageDispatcher MessageDispatcher { get; }
-
-        public AddinProxy Proxy { get; }
 
         public void OnReceive(Message message)
         {
@@ -43,12 +40,7 @@ namespace Tumbler.Addin.TestB
             {
                 response = message.CreateErrorResponseMessage(new ArgumentException("Only json format allowed"));
             }
-            this.Send(response);
-        }
-
-        public void Send(Message message)
-        {
-            Proxy.Send(message);
+            this.SendMessage(response);
         }
 
 

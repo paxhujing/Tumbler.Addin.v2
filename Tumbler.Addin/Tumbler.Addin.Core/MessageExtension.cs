@@ -11,6 +11,30 @@ namespace Tumbler.Addin.Core
     /// </summary>
     public static class MessageExtension
     {
+        #region Send
+
+        /// <summary>
+        /// 发送消息。
+        /// </summary>
+        /// <param name="service">要发送消息的对象。</param>
+        /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public static void SendMessage(this IMessageSource sender, Message message)
+        {
+            if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+            {
+                MessageService ms = AppDomain.CurrentDomain.GetData("ms") as MessageService;
+                ms?.Transmit(message);
+            }
+            else
+            {
+                AddinProxy proxy = AppDomain.CurrentDomain.GetData("proxy") as AddinProxy;
+                proxy?.Send(message);
+            }
+        }
+
+        #endregion
+
         #region Message
 
         /// <summary>
@@ -19,6 +43,7 @@ namespace Tumbler.Addin.Core
         /// <param name="source">请求消息。</param>
         /// <param name="ex">异常信息。</param>
         /// <returns>错误信息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateErrorMessage(this IMessageSource source, Exception ex)
         {
             if (ex == null) throw new ArgumentNullException("ex");
@@ -205,6 +230,7 @@ namespace Tumbler.Addin.Core
         /// <param name="requestMessage">请求消息。</param>
         /// <param name="ex">响应失败的异常信息。。</param>
         /// <returns>响应消息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateErrorResponseMessage(this Message requestMessage, Exception ex)
         {
             if (ex == null) throw new ArgumentNullException("ex");
@@ -223,6 +249,7 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="message">消息。</param>
         /// <returns></returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static String ReadAsString(this Message message)
         {
             return Encoding.UTF8.GetString(message.Content);

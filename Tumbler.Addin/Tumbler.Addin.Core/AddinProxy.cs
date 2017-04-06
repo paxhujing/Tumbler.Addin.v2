@@ -29,10 +29,9 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 初始化类型 Tumbler.Addin.Core.Delegator 实例。
         /// </summary>
-        /// <param name="target">代表的插件。</param>
-        protected AddinProxy()
+        /// <param name="target">插件。</param>
+        protected AddinProxy(IAddin target)
         {
-            IAddin target = CreateAddin(this);
             if (target == null) throw new ArgumentNullException("target");
             if (String.IsNullOrWhiteSpace(target.Id)
                 || target.Id == MessageService.AddinHostId
@@ -74,16 +73,6 @@ namespace Tumbler.Addin.Core
         #region Methods
 
         #region Public
-
-        /// <summary>
-        /// 将消息发送给消息中心让其调度。
-        /// </summary>
-        /// <param name="message">消息。</param>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public void Send(Message message)
-        {
-            MessageService?.Transmit(message);
-        }
 
         /// <summary>
         /// 将消息转发给实际的对象。
@@ -137,14 +126,17 @@ namespace Tumbler.Addin.Core
 
         #endregion
 
-        #region Protected
+        #region Internal
 
         /// <summary>
-        /// 创建插件。
+        /// 将消息发送给消息中心让其调度。
         /// </summary>
-        /// <param name="proxy">与插件关联的代理。</param>
-        /// <returns>插件。</returns>
-        protected abstract IAddin CreateAddin(AddinProxy proxy);
+        /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        internal void Send(Message message)
+        {
+            MessageService?.Transmit(message);
+        }
 
         #endregion
 

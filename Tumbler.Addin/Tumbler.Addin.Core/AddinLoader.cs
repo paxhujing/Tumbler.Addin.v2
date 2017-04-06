@@ -35,6 +35,7 @@ namespace Tumbler.Addin.Core
             XmlReader schemaXml = XmlReader.Create(stream);
             _addinXmlSchema = new XmlSchemaSet();
             _addinXmlSchema.Add(null, schemaXml);
+            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += OnReflectionOnlyAssemblyResolve;
         }
 
         #endregion
@@ -49,13 +50,14 @@ namespace Tumbler.Addin.Core
         /// <param name="addinNode">插件节点。</param>
         /// <returns>插件代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public AddinProxy LoadAddin(XElement addinNode)
+        public IMessageTarget LoadAddin(XElement addinNode)
         {
             if (addinNode.Name != AddinConfigParser.AddinNodeName) return null;
             String directory;
             XDocument doc = GetAddinConfigImpl(addinNode, out directory);
             if (doc == null) return null;
-            return CreateAppDomain(doc, directory);
+            LoadImpl(doc, directory);
+            return LoadImpl(doc, directory);
         }
 
         /// <summary>
@@ -64,13 +66,13 @@ namespace Tumbler.Addin.Core
         /// <param name="serviceNode">服务节点。</param>
         /// <returns>服务代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public AddinProxy LoadService(XElement serviceNode)
+        public IMessageTarget LoadService(XElement serviceNode)
         {
             if (serviceNode.Name != AddinConfigParser.ServiceNodeName) return null;
             String directory;
             XDocument doc = GetAddinConfigImpl(serviceNode, out directory);
             if (doc == null) return null;
-            return CreateAppDomain(doc, directory);
+            return LoadImpl(doc, directory);
         }
 
         /// <summary>
@@ -99,10 +101,6 @@ namespace Tumbler.Addin.Core
             String location = node.Attribute("location").Value;
             try
             {
-                if (!Path.IsPathRooted(location))
-                {
-                    location = Path.Combine(AddinConfigParser.DefaultDirectory, location);
-                }
                 XDocument config = XDocument.Load(location);
                 config.Validate(_addinXmlSchema, ValidationEventHandler);
                 directory = Path.GetDirectoryName(location);
@@ -127,31 +125,85 @@ namespace Tumbler.Addin.Core
         }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private AddinProxy CreateAppDomain(XDocument doc, String directory)
+        private IMessageTarget LoadImpl(XDocument doc, String directory)
         {
             String type = doc.Root.Attribute("type").Value;
-            String id = doc.Root.Attribute("id").Value;
             Int32 index = type.IndexOf(',');
             String typeName = type.Substring(0, index);
             String assemblyName = type.Substring(index + 1);
             if (String.IsNullOrWhiteSpace(typeName) || String.IsNullOrWhiteSpace(assemblyName)) return null;
-            AppDomainSetup setup = new AppDomainSetup();
-            setup.ApplicationBase = directory;
-            XElement addinInfo = doc.Root.Element("info");
-            if (addinInfo != null)
+            try
             {
-                setup.AppDomainInitializerArguments = new String[] { id };
-                setup.ApplicationName = addinInfo.Element("name")?.Value;
+                Assembly assembly = Assembly.ReflectionOnlyLoadFrom(Path.Combine(directory, assemblyName + ".dll"));
+                Type addinType = assembly.GetType(typeName);
+                Boolean needProxy = addinType.GetCustomAttributesData().SingleOrDefault(x => 
+                    x.AttributeType.AssemblyQualifiedName == typeof(AddinProxyAttribute).AssemblyQualifiedName) != null;
+                if (needProxy)
+                {
+                    return LoadOnIsolatedAppDomain(addinType.FullName, assembly, doc);
+                }
+                else
+                {
+                    return LoadOnDefaultAppDomain(addinType.FullName, assembly, doc);
+                }
             }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private Assembly OnReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            String directory = Path.GetDirectoryName(args.RequestingAssembly.Location);
+            AssemblyName an = new AssemblyName(args.Name);
+            String file = Path.Combine(directory, an.Name + ".dll");
+            return Assembly.ReflectionOnlyLoadFrom(file);
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private IMessageTarget LoadOnDefaultAppDomain(String typeName, Assembly reflectionAssembly, XDocument doc)
+        {
+            try
+            {
+                String id = doc.Root.Attribute("id").Value;
+                Assembly assembly = AppDomain.CurrentDomain.Load(reflectionAssembly.FullName);
+                IAddin addin = assembly.CreateInstance(typeName) as IAddin;
+                if (addin != null)
+                {
+                    if (addin.Id != id) return null;
+                    addin.Load();
+#if DEBUG
+                    Console.WriteLine($"Created addin {addin.Id} in default appdomain");
+#endif
+                }
+                return addin;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private IMessageTarget LoadOnIsolatedAppDomain(String typeName, Assembly reflectionAssembly, XDocument doc)
+        {
+            String id = doc.Root.Attribute("id").Value;
+            AppDomainSetup setup = new AppDomainSetup();
+            setup.ApplicationName = id;
+            setup.ApplicationBase = Path.GetDirectoryName(reflectionAssembly.Location);
             AppDomain domain = AppDomain.CreateDomain($"AddinDomain#{id}", null, setup);
             try
             {
-                AddinProxy proxy = (AddinProxy)domain.CreateInstanceAndUnwrap(assemblyName, typeName + "Proxy");
+                AddinProxy proxy = (AddinProxy)domain.CreateInstanceAndUnwrap(reflectionAssembly.FullName, typeName + "Proxy");
                 if (proxy.Id != id) throw new InvalidDataException("The id in config not match");
                 proxy.Owner = domain;
                 proxy.Load();
+                domain.SetData("proxy", proxy);
+                domain.SetData("id", id);
 #if DEBUG
-                Console.WriteLine($"Created addin {proxy.Id} in {domain.FriendlyName}");
+                Console.WriteLine($"Created isolated addin {proxy.Id} in {domain.FriendlyName}");
 #endif
                 return proxy;
             }

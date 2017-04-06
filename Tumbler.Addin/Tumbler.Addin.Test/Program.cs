@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using Tumbler.Addin.Core;
 
@@ -13,8 +14,9 @@ namespace Tumbler.Addin.Test
 
         static void Main(string[] args)
         {
+
             AddinManager manager = new AddinManager(_host, "addins.xml");
-            AddinProxy[] proxies = manager.LoadAddins("menu").ToArray();
+            IMessageTarget[] proxies = manager.LoadAddins("menu").ToArray();
 
             //String[] a = { "0FAEE6AA-72BA-4E13-8689-2B1F86A2502C", "74D56627-BD68-4C0F-B006-AB643E72DB8B","" };
             //Message message = _host.CreateMulticastMessage(a, ContentType.JSON, new Byte[10]);
@@ -30,21 +32,21 @@ namespace Tumbler.Addin.Test
             Double[] a = new Double[] { 1.0, 2.0, 3.0 };
             String json = JsonConvert.SerializeObject(a);
             Message message = _host.CreateBroadcastMessage(ContentType.JSON, json);
-            _host.Send(message);
+            _host.SendMessage(message);
             Console.ReadKey();
 
             Console.Clear();
             Int32[] b = new Int32[] { 10, 20, 30 };
             json = JsonConvert.SerializeObject(b);
-            //_host.MessageService.Unregister(proxies[0].Id);
+            manager.Unregister(proxies[0].Id);
             message = _host.CreateBroadcastMessage( ContentType.JSON, json);
-            _host.Send(message);
+            _host.SendMessage(message);
             Console.ReadKey();
 
             Console.Clear();
-            _host.MessageService.Register(proxies[0]);
+            manager.Register(proxies[0]);
             message = _host.CreateBroadcastMessage(ContentType.JSON, json);
-            _host.Send(message);
+            _host.SendMessage(message);
             Console.ReadKey();
 
         }

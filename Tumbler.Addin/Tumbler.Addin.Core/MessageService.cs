@@ -49,6 +49,7 @@ namespace Tumbler.Addin.Core
             if(host == null) throw new ArgumentNullException("host");
             _host = host;
             host.MessageDispatcher.Start();
+            AppDomain.CurrentDomain.SetData("ms", this);
         }
 
         #endregion
@@ -188,7 +189,7 @@ namespace Tumbler.Addin.Core
         private void OnDomainUnload(object sender, EventArgs e)
         {
             AppDomain domain = (AppDomain)sender;
-            String id = domain.SetupInformation.AppDomainInitializerArguments[0];
+            String id = domain.GetData("id") as String;
             Unregister(id);
         }
 

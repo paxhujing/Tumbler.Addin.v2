@@ -48,6 +48,7 @@
     <Compile Include="AddinLoader.cs" />
     <Compile Include="AddinManager.cs" />
     <Compile Include="AddinProxy.cs" />
+    <Compile Include="AddinProxyAttribute.cs" />
     <Compile Include="ContentType.cs" />
     <Compile Include="IAddin.cs" />
     <Compile Include="IAddinHost.cs" />
