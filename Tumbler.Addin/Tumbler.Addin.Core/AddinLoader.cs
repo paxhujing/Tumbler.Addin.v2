@@ -56,7 +56,6 @@ namespace Tumbler.Addin.Core
             String directory;
             XDocument doc = GetAddinConfigImpl(addinNode, out directory);
             if (doc == null) return null;
-            LoadImpl(doc, directory);
             return LoadImpl(doc, directory);
         }
 

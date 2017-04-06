@@ -137,9 +137,6 @@ namespace Tumbler.Addin.Core
         {
             String destination = message.Destination;
             if (String.IsNullOrWhiteSpace(destination)) return;
-#if DEBUG
-            Console.WriteLine($"[{message.Id}]Transmit message from {message.Source} to {message.Destination}");
-#endif
             if (destination == AddinHostId || destination == _host.Id)
             {
                 _host.MessageDispatcher.Queue(message);
@@ -180,7 +177,21 @@ namespace Tumbler.Addin.Core
                 {
                     if (!_regedit.ContainsKey(destination)) continue;
                     message.Destination = destination;
-                    _regedit[destination].MessageDispatcher.Queue(message);
+#if DEBUG
+                    Console.WriteLine($"[{message.Id}]Transmit from {message.Source} to {message.Destination}");
+                    Console.WriteLine($"\tIsErrorMessage:{message.IsFailed}");
+                    Console.WriteLine($"\tContentType:{message.ContentType}");
+                    Console.WriteLine($"\tContentLength:{message.Content.Length}");
+#endif
+
+                    if (_regedit[destination] is AddinProxy)
+                    {
+                        _regedit[destination].MessageDispatcher.Queue(message);
+                    }
+                    else
+                    {
+                        _regedit[destination].MessageDispatcher.Queue((Message)message.Clone());
+                    }
                 }
             }
         }

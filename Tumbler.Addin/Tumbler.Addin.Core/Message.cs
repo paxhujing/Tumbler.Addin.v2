@@ -12,7 +12,7 @@ namespace Tumbler.Addin.Core
     /// 表示一个消息。
     /// </summary>
     [Serializable]
-    public sealed class Message : ISerializable
+    public sealed class Message : ISerializable, ICloneable
     {
         #region Constructors
 
@@ -24,7 +24,7 @@ namespace Tumbler.Addin.Core
         /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source,ContentType contentType, params Byte[] content)
+        internal Message(String destination, String source, ContentType contentType, params Byte[] content)
         {
             if (String.IsNullOrWhiteSpace(destination)) throw new ArgumentNullException("destination");
             if (String.IsNullOrWhiteSpace(source)) throw new ArgumentNullException("source");
@@ -107,6 +107,12 @@ namespace Tumbler.Addin.Core
         /// </summary>
         public Byte[] Content { get; }
 
+        #endregion
+
+        #region Methods
+
+        #region Public
+
         /// <summary>
         /// 序列化使用。
         /// </summary>
@@ -123,6 +129,18 @@ namespace Tumbler.Addin.Core
             info.AddValue("ContentType", (Byte)ContentType);
             info.AddValue("Content", Content);
         }
+
+        /// <summary>
+        /// 浅克隆对象。
+        /// </summary>
+        /// <returns>新实例。</returns>
+        [SecurityPermission(SecurityAction.Demand, RemotingConfiguration = false, SerializationFormatter = false)]
+        public Object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        #endregion
 
         #endregion
     }

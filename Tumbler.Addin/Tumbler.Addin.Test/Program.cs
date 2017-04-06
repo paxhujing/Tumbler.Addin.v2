@@ -27,8 +27,9 @@ namespace Tumbler.Addin.Test
 
             //message = _host.CreateUnicastMessage(proxies[1].Id, ContentType.JSON, new Byte[5]);
             //_host.Send(message);
-            //Console.ReadKey();
+            Console.ReadKey();
 
+            Console.Clear();
             Double[] a = new Double[] { 1.0, 2.0, 3.0 };
             String json = JsonConvert.SerializeObject(a);
             Message message = _host.CreateBroadcastMessage(ContentType.JSON, json);
