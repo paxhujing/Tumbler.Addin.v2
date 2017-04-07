@@ -30,7 +30,7 @@ namespace Tumbler.Addin.TestA
                 {
                     Double[] args = JsonConvert.DeserializeObject<Double[]>(json);
                     Double result = args.Sum();
-                    response = message.CreateResponseMessage(ContentType.Text, result.ToString());
+                    response = message.CreateResponseMessage(ContentType.Text, result);
                 }
                 catch(Exception ex)
                 {

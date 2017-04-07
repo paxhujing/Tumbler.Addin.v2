@@ -24,7 +24,7 @@ namespace Tumbler.Addin.Core
         /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source, ContentType contentType, params Byte[] content)
+        internal Message(String destination, String source, ContentType contentType, Object content)
         {
             if (String.IsNullOrWhiteSpace(destination)) throw new ArgumentNullException("destination");
             if (String.IsNullOrWhiteSpace(source)) throw new ArgumentNullException("source");
@@ -42,10 +42,10 @@ namespace Tumbler.Addin.Core
         /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source, Boolean isResponse, ContentType contentType, String content)
-            : this(destination, source, contentType, Encoding.UTF8.GetBytes(content))
-        {
-        }
+        //internal Message(String destination, String source, Boolean isResponse, ContentType contentType, String content)
+        //    : this(destination, source, contentType, Encoding.UTF8.GetBytes(content))
+        //{
+        //}
 
         /// <summary>
         /// 初始化结构 Tumbler.Addin.Core.Message 。
@@ -56,11 +56,10 @@ namespace Tumbler.Addin.Core
         {
             Id = info.GetInt32("Id");
             IsResponse = info.GetBoolean("IsResponse");
-            Exception = info.GetValue("Exception", typeof(Exception)) as Exception;
             Destination = info.GetString("Destination");
             Source = info.GetString("Source");
             ContentType = (ContentType)info.GetByte("ContentType");
-            Content = info.GetValue("Content", typeof(Byte[])) as Byte[];
+            Content = info.GetValue("Content",typeof(Object));
         }
 
         #endregion
@@ -80,12 +79,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 是否正确响应消息。
         /// </summary>
-        public Boolean IsFailed => Exception != null;
-
-        /// <summary>
-        /// 响应失败的异常信息。
-        /// </summary>
-        public Exception Exception { get; internal set; }
+        public Boolean IsFailed => ContentType ==  ContentType.Exception;
 
         /// <summary>
         /// 消息目标。
@@ -105,7 +99,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 消息内容。
         /// </summary>
-        public Byte[] Content { get; }
+        public Object Content { get; }
 
         #endregion
 
@@ -123,7 +117,6 @@ namespace Tumbler.Addin.Core
         {
             info.AddValue("Id", Id);
             info.AddValue("IsResponse", IsResponse);
-            info.AddValue("Exception", Exception);
             info.AddValue("Destination", Destination);
             info.AddValue("Source", Source);
             info.AddValue("ContentType", (Byte)ContentType);

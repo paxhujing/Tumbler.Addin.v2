@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,71 +36,37 @@ namespace Tumbler.Addin.Core
 
         #endregion
 
-        #region Message
+        #region Request
 
         /// <summary>
         /// 创建错误消息。
         /// </summary>
-        /// <param name="source">请求消息。</param>
+        /// <param name="source">消息源。</param>
         /// <param name="ex">异常信息。</param>
         /// <returns>错误信息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateErrorMessage(this IMessageSource source, Exception ex)
         {
             if (ex == null) throw new ArgumentNullException("ex");
-            return new Message(MessageService.AddinHostId, source.Id, ContentType.None) { Exception = ex };
+            return CreateRequestMessage(source, MessageService.AddinHostId, ContentType.Exception, ex);
         }
-
-        #region Request
-
-        /// <summary>
-        /// 创建发送给宿主的消息。
-        /// </summary>
-        /// <param name="source">消息源。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        /// <returns>消息。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMessage(this IMessageSource source, ContentType contentType, params Byte[] content)
-        {
-            return CreateMessage(source, MessageService.AddinHostId, contentType, content);
-        }
-
-        /// <summary>
-        /// 创建发送给宿主的消息。
-        /// </summary>
-        /// <param name="source">消息源。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        /// <returns>消息。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMessage(this IMessageSource source, ContentType contentType, String content)
-        {
-            return CreateMessage(source, MessageService.AddinHostId, contentType, content);
-        }
-
-        #region Unicast
 
         /// <summary>
         /// 创建宿主发送给某个特定目标的消息。
         /// </summary>
-        /// <param name="host">宿主。</param>
+        /// <param name="source">消息源。</param>
         /// <param name="destination">目的地。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateUnicastMessage(this IAddinHost host, String destination, ContentType contentType, params Byte[] content)
+        public static Message CreateMessage(this IMessageSource source, String destination, ContentType contentType, Object content)
         {
             if (destination == null || destination == MessageService.AllTargetsId)
             {
                 throw new InvalidOperationException(destination);
             }
-            if (content == null || content.Length == 0)
-            {
-                return new Message(destination, MessageService.AddinHostId, ContentType.None, content);
-            }
-            return new Message(destination, MessageService.AddinHostId, contentType, content);
+            return CreateRequestMessage(source, destination, contentType, content);
         }
 
         /// <summary>
@@ -111,15 +78,14 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateUnicastMessage(this IAddinHost host, String destination, ContentType contentType, String content)
+        public static Message CreateUnicastMessage(this IAddinHost host, String destination, ContentType contentType, Object content)
         {
-            Byte[] data = Encoding.UTF8.GetBytes(content);
-            return CreateUnicastMessage(host, destination, contentType, data);
+            if (destination == null || destination == MessageService.AllTargetsId)
+            {
+                throw new InvalidOperationException(destination);
+            }
+            return CreateRequestMessage(host, destination, contentType, content);
         }
-
-        #endregion
-
-        #region Multicast
 
         /// <summary>
         /// 创建宿主发送给一组特定目标的消息。
@@ -130,46 +96,14 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMulticastMessage(this IAddinHost host, String[] destinations, ContentType contentType, params Byte[] content)
+        public static Message CreateMulticastMessage(this IAddinHost host, String[] destinations, ContentType contentType, Object content)
         {
             if (destinations == null || destinations.Length == 0)
             {
                 throw new ArgumentException("destinations");
             }
             String temp = String.Join(";", destinations);
-            return CreateMessage(host, temp, contentType, content);
-        }
-
-        /// <summary>
-        /// 创建宿主发送给一组特定目标的消息。
-        /// </summary>
-        /// <param name="host">宿主。</param>
-        /// <param name="destinations">目的地。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        /// <returns>消息。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateMulticastMessage(this IAddinHost host, String[] destinations, ContentType contentType, String content)
-        {
-            Byte[] data = Encoding.UTF8.GetBytes(content);
-            return CreateMulticastMessage(host, destinations, contentType, data);
-        }
-
-        #endregion
-
-        #region Broadcast
-
-        /// <summary>
-        /// 创建发送给所有插件的消息。
-        /// </summary>
-        /// <param name="host">宿主。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        /// <returns>消息。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateBroadcastMessage(this IAddinHost host, ContentType contentType, params Byte[] content)
-        {
-            return CreateMessage(host, MessageService.AllTargetsId, contentType, content);
+            return CreateRequestMessage(host, temp, contentType, content);
         }
 
         /// <summary>
@@ -180,12 +114,10 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateBroadcastMessage(this IAddinHost host, ContentType contentType, String content)
+        public static Message CreateBroadcastMessage(this IAddinHost host, ContentType contentType, Object content)
         {
-            return CreateMessage(host, MessageService.AllTargetsId, contentType, content);
+            return CreateRequestMessage(host, MessageService.AllTargetsId, contentType, content);
         }
-
-        #endregion
 
         #endregion
 
@@ -197,31 +129,11 @@ namespace Tumbler.Addin.Core
         /// <param name="requestMessage">请求消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        /// <returns>响应消息。</returns>
+        /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateResponseMessage(this Message requestMessage, ContentType contentType, params Byte[] content)
+        public static Message CreateResponseMessage(this Message requestMessage, ContentType contentType, Object content)
         {
-            if (content == null || content.Length == 0)
-            {
-                return new Message(requestMessage.Source, requestMessage.Destination, ContentType.None, content)
-                { IsResponse = true, Id = requestMessage.Id };
-            }
-            return new Message(requestMessage.Source, requestMessage.Destination, contentType, content)
-            { IsResponse = true, Id = requestMessage.Id };
-        }
-
-        /// <summary>
-        /// 创建响应消息。
-        /// </summary>
-        /// <param name="requestMessage">请求消息。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        /// <returns>响应消息。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public static Message CreateResponseMessage(this Message requestMessage, ContentType contentType, String content)
-        {
-            Byte[] data = Encoding.UTF8.GetBytes(content);
-            return CreateResponseMessage(requestMessage, contentType, data);
+            return CreateMessage(requestMessage.Destination, requestMessage.Source, contentType, content, true);
         }
 
         /// <summary>
@@ -234,11 +146,8 @@ namespace Tumbler.Addin.Core
         public static Message CreateErrorResponseMessage(this Message requestMessage, Exception ex)
         {
             if (ex == null) throw new ArgumentNullException("ex");
-            return new Message(requestMessage.Source, requestMessage.Destination, ContentType.None)
-            { IsResponse = true, Exception = ex, Id = requestMessage.Id };
+            return CreateResponseMessage(requestMessage, ContentType.Exception, ex);
         }
-
-        #endregion
 
         #endregion
 
@@ -252,7 +161,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static String ReadAsString(this Message message)
         {
-            return Encoding.UTF8.GetString(message.Content);
+            return message.Content as String;
         }
 
         #endregion
@@ -260,7 +169,7 @@ namespace Tumbler.Addin.Core
         #region Private
 
         /// <summary>
-        /// 创建消息。
+        /// 创建请求消息。
         /// </summary>
         /// <param name="source">消息源。</param>
         /// <param name="destination">目的地。</param>
@@ -268,13 +177,9 @@ namespace Tumbler.Addin.Core
         /// <param name="content">消息内容。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private static Message CreateMessage(this IMessageSource source, String destination, ContentType contentType, params Byte[] content)
+        private static Message CreateRequestMessage(this IMessageSource source, String destination, ContentType contentType, Object content)
         {
-            if (content == null || content.Length == 0)
-            {
-                return new Message(destination, source.Id, ContentType.None, content);
-            }
-            return new Message(destination, source.Id, contentType, content);
+            return CreateMessage(source.Id, destination, contentType, content, false);
         }
 
         /// <summary>
@@ -284,12 +189,46 @@ namespace Tumbler.Addin.Core
         /// <param name="destination">目的地。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
+        /// <param name="isResponse">是否是响应消息。</param>
         /// <returns>消息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private static Message CreateMessage(this IMessageSource source, String destination, ContentType contentType, String content)
+        private static Message CreateMessage(String source, String destination, ContentType contentType, Object content, Boolean isResponse)
         {
-            Byte[] data = Encoding.UTF8.GetBytes(content);
-            return CreateMessage(source, destination, contentType, data);
+            switch (contentType)
+            {
+                case ContentType.JSON:
+                case ContentType.XML:
+                case ContentType.Text:
+                    if (!(content is String))
+                    {
+                        throw new ArgumentException("Content is not JSON、XML or Text");
+                    }
+                    break;
+                case ContentType.ByteArray:
+                    if (!(content is Byte[]))
+                    {
+                        throw new ArgumentException("Content is not ByteArray");
+                    }
+                    break;
+                case ContentType.Exception:
+                    if (!(content is Exception))
+                    {
+                        throw new ArgumentException("Content is not Exception");
+                    }
+                    break;
+                case ContentType.Object:
+                    if (!AppDomain.CurrentDomain.IsDefaultAppDomain()
+                        && !(content is ISerializable)
+                        && !(content is MarshalByRefObject))
+                    {
+                        throw new ArgumentException("Content is not ISerializable or MarshalByRefObject");
+                    }
+                    break;
+                case ContentType.None:
+                default:
+                    return new Message(destination, source, contentType, null) { IsResponse = isResponse };
+            }
+            return new Message(destination, source, contentType, content) { IsResponse = isResponse };
         }
 
         #endregion

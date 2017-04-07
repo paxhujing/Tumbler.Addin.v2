@@ -31,7 +31,7 @@ namespace Tumbler.Addin.Test
         {
             if (message.IsFailed)
             {
-                Console.WriteLine($"[{message.Id}]Process message {message.Source} failed.\r\n\t{message.Exception}");
+                Console.WriteLine($"[{message.Id}]Process message {message.Source} failed.\r\n\t{(Exception)message.Content}");
             }
             else
             {

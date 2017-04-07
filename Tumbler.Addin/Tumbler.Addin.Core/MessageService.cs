@@ -156,20 +156,20 @@ namespace Tumbler.Addin.Core
         {
             if (message.Destination == AllTargetsId)
             {
-                TransmitSameMessageToSomeone(message, _regedit.Keys.ToArray());
+                TransmitSameMessageToOthers(message, _regedit.Keys.ToArray());
                 message.Destination = AllTargetsId;
             }
             else
             {
                 String temp = message.Destination;
                 String[] destinations = message.Destination.Split(new Char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                TransmitSameMessageToSomeone(message, destinations);
+                TransmitSameMessageToOthers(message, destinations);
                 message.Destination = temp;
             }
         }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private void TransmitSameMessageToSomeone(Message message, params String[] destinations)
+        private void TransmitSameMessageToOthers(Message message, params String[] destinations)
         {
             lock (_regedit)
             {
@@ -181,16 +181,14 @@ namespace Tumbler.Addin.Core
                     Console.WriteLine($"[{message.Id}]Transmit from {message.Source} to {message.Destination}");
                     Console.WriteLine($"\tIsErrorMessage:{message.IsFailed}");
                     Console.WriteLine($"\tContentType:{message.ContentType}");
-                    Console.WriteLine($"\tContentLength:{message.Content.Length}");
 #endif
-
-                    if (_regedit[destination] is AddinProxy)
+                    if (_regedit[message.Destination] is AddinProxy)
                     {
-                        _regedit[destination].MessageDispatcher.Queue(message);
+                        _regedit[message.Destination].MessageDispatcher.Queue(message);
                     }
                     else
                     {
-                        _regedit[destination].MessageDispatcher.Queue((Message)message.Clone());
+                        _regedit[message.Destination].MessageDispatcher.Queue((Message)message.Clone());
                     }
                 }
             }

@@ -27,5 +27,17 @@ namespace Tumbler.Addin.Core
         /// 纯文本。
         /// </summary>
         Text,
+        /// <summary>
+        /// 字节数组。
+        /// </summary>
+        ByteArray,
+        /// <summary>
+        /// 对象。
+        /// </summary>
+        Object,
+        /// <summary>
+        /// 异常信息。
+        /// </summary>
+        Exception,
     }
 }
