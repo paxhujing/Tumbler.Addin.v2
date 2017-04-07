@@ -11,7 +11,10 @@ namespace Tumbler.Addin.Core
     /// </summary>
     public interface IAddinHost : IMessageSource, IMessageTarget
     {
-        #region Methods
+        /// <summary>
+        /// 插件管理器。
+        /// </summary>
+        AddinManager AddinManager { get; }
 
         /// <summary>
         /// 初始化。
@@ -21,7 +24,5 @@ namespace Tumbler.Addin.Core
         Boolean Install();
 
         Boolean Uninstall();
-
-        #endregion
     }
 }

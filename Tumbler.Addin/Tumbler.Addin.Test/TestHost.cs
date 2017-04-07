@@ -12,7 +12,10 @@ namespace Tumbler.Addin.Test
         public TestHost()
         {
             MessageDispatcher = new MessageDispatcher(this);
+            AddinManager = new AddinManager(this, @"addins\addins.xml");
         }
+
+        public AddinManager AddinManager { get; }
 
         public String Id => MessageService.AddinHostId;
 

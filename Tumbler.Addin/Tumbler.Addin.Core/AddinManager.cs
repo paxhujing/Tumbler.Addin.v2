@@ -54,7 +54,18 @@ namespace Tumbler.Addin.Core
         public AddinManager(IAddinHost host, String globalConfigFile)
         {
             if (host == null) throw new ArgumentNullException("host");
-            if (String.IsNullOrWhiteSpace(globalConfigFile)) throw new ArgumentNullException("globalConfigFile");
+            if (String.IsNullOrWhiteSpace(globalConfigFile))
+            {
+                throw new ArgumentNullException("globalConfigFile");
+            }
+            if (!Path.IsPathRooted(globalConfigFile))
+            {
+                globalConfigFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, globalConfigFile);
+            }
+            if (!File.Exists(globalConfigFile))
+            {
+                throw new FileNotFoundException(globalConfigFile);
+            }
             _parser = new AddinConfigParser(globalConfigFile);
             _messageService = new MessageService(host);
             _loader = new AddinLoader();
