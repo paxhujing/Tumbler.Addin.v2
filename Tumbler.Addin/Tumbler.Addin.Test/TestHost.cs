@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,12 @@ namespace Tumbler.Addin.Test
 
         public AddinManager AddinManager { get; }
 
-        public String Id => MessageService.AddinHostId;
+        /// <summary>
+        /// 文件日志记录器。
+        /// </summary>
+        public ILog Logger { get; } = LogManager.GetLogger("FileLogger");
+
+        public String Id { get; }= "4E4928D0-4EF1-43F8-BCED-95C012D9DBF1";
 
         public MessageDispatcher MessageDispatcher { get; }
 

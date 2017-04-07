@@ -31,7 +31,7 @@ namespace Tumbler.Addin.Test
             Console.Clear();
             Double[] a = new Double[] { 1.0, 2.0, 3.0 };
             String json = JsonConvert.SerializeObject(a);
-            Message message = _host.CreateBroadcastMessage(ContentType.JSON, json);
+            Message message = _host.CreateBroadcastMessage(1, ContentType.JSON, json);
             _host.SendMessage(message);
             Console.ReadKey();
 
@@ -39,13 +39,13 @@ namespace Tumbler.Addin.Test
             Int32[] b = new Int32[] { 10, 20, 30 };
             json = JsonConvert.SerializeObject(b);
             _host.AddinManager.Unregister(proxies[0].Id);
-            message = _host.CreateBroadcastMessage( ContentType.JSON, json);
+            message = _host.CreateBroadcastMessage(2, ContentType.JSON, json);
             _host.SendMessage(message);
             Console.ReadKey();
 
             Console.Clear();
             _host.AddinManager.Register(proxies[0]);
-            message = _host.CreateBroadcastMessage(ContentType.JSON, json);
+            message = _host.CreateBroadcastMessage(3, ContentType.JSON, json);
             _host.SendMessage(message);
             Console.ReadKey();
 

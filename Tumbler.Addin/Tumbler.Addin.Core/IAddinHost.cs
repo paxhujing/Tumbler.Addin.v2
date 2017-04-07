@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,11 @@ namespace Tumbler.Addin.Core
         /// 插件管理器。
         /// </summary>
         AddinManager AddinManager { get; }
+
+        /// <summary>
+        /// 日志记录器。
+        /// </summary>
+        ILog Logger { get; }
 
         /// <summary>
         /// 初始化。

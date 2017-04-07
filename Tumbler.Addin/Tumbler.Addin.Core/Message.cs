@@ -19,15 +19,17 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 初始化结构 Tumbler.Addin.Core.Message 。
         /// </summary>
+        /// <param name="messageCode">消息码。</param>
         /// <param name="destination">消息目标。</param>
         /// <param name="source">消息源。</param>
         /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
-        internal Message(String destination, String source, ContentType contentType, Object content)
+        internal Message(Int32 messageCode, String destination, String source, ContentType contentType, Object content)
         {
             if (String.IsNullOrWhiteSpace(destination)) throw new ArgumentNullException("destination");
             if (String.IsNullOrWhiteSpace(source)) throw new ArgumentNullException("source");
+            MessageCode = messageCode;
             Destination = destination;
             Source = source;
             ContentType = contentType;
@@ -37,23 +39,11 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 初始化结构 Tumbler.Addin.Core.Message 。
         /// </summary>
-        /// <param name="destination">消息目标。</param>
-        /// <param name="source">消息源。</param>
-        /// <param name="isResponse">是否是响应消息。</param>
-        /// <param name="contentType">消息内容的类型。</param>
-        /// <param name="content">消息内容。</param>
-        //internal Message(String destination, String source, Boolean isResponse, ContentType contentType, String content)
-        //    : this(destination, source, contentType, Encoding.UTF8.GetBytes(content))
-        //{
-        //}
-
-        /// <summary>
-        /// 初始化结构 Tumbler.Addin.Core.Message 。
-        /// </summary>
         /// <param name="info">SerializationInfo 类型实例。</param>
         /// <param name="context">StreamingContext 类型实例。</param>
         internal Message(SerializationInfo info, StreamingContext context)
         {
+            MessageCode = info.GetInt32("MessageCode");
             Id = info.GetInt32("Id");
             IsResponse = info.GetBoolean("IsResponse");
             Destination = info.GetString("Destination");
@@ -75,6 +65,11 @@ namespace Tumbler.Addin.Core
         /// 是否是响应消息。
         /// </summary>
         public Boolean IsResponse { get; internal set; }
+
+        /// <summary>
+        /// 消息码。用于表明消息的类型。
+        /// </summary>
+        public Int32 MessageCode { get; internal set; }
 
         /// <summary>
         /// 是否正确响应消息。
@@ -115,6 +110,7 @@ namespace Tumbler.Addin.Core
         [SecurityPermission(SecurityAction.Demand, RemotingConfiguration = true, SerializationFormatter = true)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("MessageCode", MessageCode);
             info.AddValue("Id", Id);
             info.AddValue("IsResponse", IsResponse);
             info.AddValue("Destination", Destination);

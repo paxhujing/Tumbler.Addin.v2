@@ -19,12 +19,12 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 表示消息的目标是宿主。
         /// </summary>
-        public const String AddinHostId = ".";
+        internal const String AddinHostId = ".";
 
         /// <summary>
         /// 表示消息的目标是所有插件（除自己和宿主外）。
         /// </summary>
-        public const String AllTargetsId = "*";
+        internal const String AllTargetsId = "*";
 
         /// <summary>
         /// 注册表。
