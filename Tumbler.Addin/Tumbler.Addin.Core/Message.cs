@@ -12,7 +12,7 @@ namespace Tumbler.Addin.Core
     /// 表示一个消息。
     /// </summary>
     [Serializable]
-    public sealed class Message : ISerializable, ICloneable
+    public class Message : ISerializable, ICloneable
     {
         #region Constructors
 
@@ -108,7 +108,7 @@ namespace Tumbler.Addin.Core
         /// <param name="info">SerializationInfo 类型实例。</param>
         /// <param name="context">StreamingContext 类型实例。</param>
         [SecurityPermission(SecurityAction.Demand, RemotingConfiguration = true, SerializationFormatter = true)]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("MessageCode", MessageCode);
             info.AddValue("Id", Id);

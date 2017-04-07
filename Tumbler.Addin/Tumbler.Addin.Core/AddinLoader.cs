@@ -155,6 +155,11 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         private Assembly OnReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
         {
+            Assembly existed = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(x => x.FullName == args.Name);
+            if (existed != null)
+            {
+                return Assembly.ReflectionOnlyLoadFrom(existed.Location);
+            }
             String directory = Path.GetDirectoryName(args.RequestingAssembly.Location);
             AssemblyName an = new AssemblyName(args.Name);
             String file = Path.Combine(directory, an.Name + ".dll");

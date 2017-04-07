@@ -167,6 +167,15 @@ namespace Tumbler.Addin.Core
             _messageService.Register(target);
         }
 
+        /// <summary>
+        /// 终止消息服务。
+        /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public void Terminate()
+        {
+            _messageService.Terminate();
+        }
+
         #endregion
 
         #region Private

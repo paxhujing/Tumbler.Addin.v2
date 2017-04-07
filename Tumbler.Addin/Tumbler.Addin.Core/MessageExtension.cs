@@ -22,16 +22,31 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static void SendMessage(this IMessageSource sender, Message message)
         {
-            if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+            if (sender.Id != message.Source) throw new InvalidOperationException("This message is not yours,maybe you need forward it");
+            SendMessageImpl(message);
+        }
+
+        /// <summary>
+        /// 转发别人的消息。
+        /// </summary>
+        /// <param name="sender">转发此消息的发送者。</param>
+        /// <param name="message">被转发的消息。</param>
+        /// <param name="nextDestination">下一站。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public static void ForwardMessage(this IMessageSource sender, Message message, String nextDestination)
+        {
+            if (String.IsNullOrWhiteSpace(nextDestination) || nextDestination == MessageService.AllTargetsId)
             {
-                MessageService ms = AppDomain.CurrentDomain.GetData("ms") as MessageService;
-                ms?.Transmit(message);
+                throw new ArgumentException("Invalid next destination");
             }
-            else
+            if (sender.Id == message.Source) throw new InvalidOperationException("This message is yours,you don't need to forward it");
+            ForwardedMessage forwardedMessage = message as ForwardedMessage;
+            if (forwardedMessage == null)
             {
-                AddinProxy proxy = AppDomain.CurrentDomain.GetData("proxy") as AddinProxy;
-                proxy?.Send(message);
+                forwardedMessage = new ForwardedMessage(message.MessageCode, message.Source, message.Destination, message.ContentType, message.Content);
             }
+            forwardedMessage.Stations.Add(nextDestination);
+            SendMessageImpl(forwardedMessage);
         }
 
         #endregion
@@ -231,6 +246,25 @@ namespace Tumbler.Addin.Core
                     return new Message(messageCode, destination, source, contentType, null) { IsResponse = isResponse };
             }
             return new Message(messageCode, destination, source, contentType, content) { IsResponse = isResponse };
+        }
+
+        /// <summary>
+        /// 发送消息。
+        /// </summary>
+        /// <param name="message">消息。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private static void SendMessageImpl(Message message)
+        {
+            if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+            {
+                MessageService ms = AppDomain.CurrentDomain.GetData("ms") as MessageService;
+                ms?.Transmit(message);
+            }
+            else
+            {
+                AddinProxy proxy = AppDomain.CurrentDomain.GetData("proxy") as AddinProxy;
+                proxy?.Send(message);
+            }
         }
 
         #endregion

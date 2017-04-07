@@ -132,18 +132,45 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="message">消息。</param>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Transmit(Message message)
         {
-            String destination = message.Destination;
-            if (String.IsNullOrWhiteSpace(destination)) return;
-            if (destination == AddinHostId || destination == _host.Id)
+            String destination = null;
+            ForwardedMessage forwardedMessage = message as ForwardedMessage;
+            //不是转发的消息
+            if (forwardedMessage == null)
             {
-                _host.MessageDispatcher.Queue(message);
-            }
+                destination = message.Destination;
+                if (String.IsNullOrWhiteSpace(destination)) return;
+                if (destination == AddinHostId || destination == _host.Id)
+                {
+                    _host.MessageDispatcher.Queue(message);
+                }
+                else
+                {
+                    TransmitSpecialMessage(message);
+                }
+            }//转发的消息
             else
             {
-                TransmitSpecialMessage(message);
+                destination = forwardedMessage.Stations.Last();
+                if (!_regedit.ContainsKey(destination)) return;
+                TransmitSameMessageToSomeone(forwardedMessage, destination);
+            }
+        }
+
+        /// <summary>
+        /// 终止消息服务。
+        /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public void Terminate()
+        {
+            lock (_regedit)
+            {
+                foreach (IMessageTarget target in _regedit.Values)
+                {
+                    target.MessageDispatcher?.Stop();
+                }
+                _regedit.Clear();
             }
         }
 
@@ -177,20 +204,27 @@ namespace Tumbler.Addin.Core
                 {
                     if (!_regedit.ContainsKey(destination)) continue;
                     message.Destination = destination;
-#if DEBUG
-                    Console.WriteLine($"[{message.Id}]Transmit from {message.Source} to {message.Destination}");
-                    Console.WriteLine($"\tIsErrorMessage:{message.IsFailed}");
-                    Console.WriteLine($"\tContentType:{message.ContentType}");
-#endif
-                    if (_regedit[message.Destination] is AddinProxy)
-                    {
-                        _regedit[message.Destination].MessageDispatcher.Queue(message);
-                    }
-                    else
-                    {
-                        _regedit[message.Destination].MessageDispatcher.Queue((Message)message.Clone());
-                    }
+                    TransmitSameMessageToSomeone(message, message.Destination);
                 }
+            }
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private void TransmitSameMessageToSomeone(Message message, String destination)
+        {
+#if DEBUG
+            Console.WriteLine($"[{message.Id}]Transmit from {message.Source} to {message.Destination}");
+            Console.WriteLine($"\tIsForwarded:{message is ForwardedMessage}");
+            Console.WriteLine($"\tIsErrorMessage:{message.IsFailed}");
+            Console.WriteLine($"\tContentType:{message.ContentType}");
+#endif
+            if (_regedit[destination] is AddinProxy)
+            {
+                _regedit[destination].MessageDispatcher.Queue(message);
+            }
+            else
+            {
+                _regedit[destination].MessageDispatcher.Queue((Message)message.Clone());
             }
         }
 
