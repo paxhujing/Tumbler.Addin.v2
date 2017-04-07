@@ -60,8 +60,6 @@
     <Compile Include="MessageDispatcher.cs" />
     <Compile Include="MessageExtension.cs" />
     <Compile Include="MessageService.cs" />
-    <Compile Include="MessagePackage.cs" />
-    <Compile Include="MessageMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
