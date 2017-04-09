@@ -32,9 +32,9 @@ namespace Tumbler.Addin.Core
         /// </summary>
         ByteArray,
         /// <summary>
-        /// 对象。
+        /// 可用于跨域传输的对象。
         /// </summary>
-        Object,
+        CrossDomainObject,
         /// <summary>
         /// 异常信息。
         /// </summary>

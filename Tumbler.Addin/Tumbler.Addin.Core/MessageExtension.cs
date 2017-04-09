@@ -233,7 +233,7 @@ namespace Tumbler.Addin.Core
                         throw new ArgumentException("Content is not Exception");
                     }
                     break;
-                case ContentType.Object:
+                case ContentType.CrossDomainObject:
                     if (!AppDomain.CurrentDomain.IsDefaultAppDomain()
                         && !(content is ISerializable)
                         && !(content is MarshalByRefObject)
