@@ -13,7 +13,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件代理。用于插件与宿主之间的通信。
     /// </summary>
-    public abstract class AddinProxy : MarshalByRefObject, IMessageSource, IMessageTarget
+    public abstract class AddinProxy : MarshalByRefObject, IMessagePoint
     {
         #region Fields
 

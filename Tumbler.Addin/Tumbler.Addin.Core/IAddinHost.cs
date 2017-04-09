@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 表示承载插件的宿主。
     /// </summary>
-    public interface IAddinHost : IMessageSource, IMessageTarget
+    public interface IAddinHost : IMessagePoint
     {
         /// <summary>
         /// 插件管理器。

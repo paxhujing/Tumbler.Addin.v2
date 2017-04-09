@@ -9,7 +9,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 表示一个插件。
     /// </summary>
-    public interface IAddin : IMessageTarget, IMessageSource
+    public interface IAddin : IMessagePoint
     {
         ///// <summary>
         ///// 与该插件关联的代理。
