@@ -51,6 +51,18 @@ namespace Tumbler.Addin.Wpf
             }
         }
 
+        /// <summary>
+        /// 卸载有UI的插件。
+        /// </summary>
+        /// <param name="ui">UI元素。</param>
+        public void Unload(FrameworkElement ui)
+        {
+            InternalMessageListener listener = ui.Tag as InternalMessageListener;
+            if (listener == null) return;
+            ui.Tag = null;
+            base.Unload(listener.Proxy);
+        }
+
         #endregion
 
         #region Protected

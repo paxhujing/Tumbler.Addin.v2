@@ -21,12 +21,6 @@ namespace Tumbler.Addin.Wpf
 
         #endregion
 
-        #region Fields
-
-        private readonly AddinProxy _proxy;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -34,8 +28,17 @@ namespace Tumbler.Addin.Wpf
         /// </summary>
         internal InternalMessageListener(AddinProxy proxy)
         {
-            _proxy = proxy;
+            Proxy = proxy;
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// 插件代理。
+        /// </summary>
+        internal AddinProxy Proxy { get; }
 
         #endregion
 
@@ -53,7 +56,7 @@ namespace Tumbler.Addin.Wpf
         public InternalMessage SendInternalMessage(Int32 messageCode, Core.ContentType contentType, Object content)
         {
             InternalMessage message = new InternalMessage(messageCode, contentType, content);
-            _proxy.OnInternalRequest(message);
+            Proxy.OnInternalRequest(message);
             return message;
         }
 

@@ -48,6 +48,27 @@ namespace Tumbler.Addin.Wpf
             return _loader.GetAddinUI(proxy);
         }
 
+        /// <summary>
+        /// 卸载有UI的插件。
+        /// </summary>
+        /// <param name="ui">UI元素。</param>
+        public void Unload(FrameworkElement ui)
+        {
+            _loader.Unload(ui);
+        }
+
+        /// <summary>
+        /// 卸载有UI的插件。
+        /// </summary>
+        /// <param name="ui">一组UI元素。</param>
+        public void Unload(IEnumerable<FrameworkElement> uis)
+        {
+            foreach (FrameworkElement ui in uis)
+            {
+                _loader.Unload(ui);
+            }
+        }
+
         #endregion
 
         #region Protected
