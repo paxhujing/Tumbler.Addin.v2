@@ -36,7 +36,9 @@ namespace Tumbler.Addin.Wpf
                 FrameworkElement ui = assembly.CreateInstance(uiType.FullName) as FrameworkElement;
                 if (ui != null)
                 {
-                    ui.Tag = proxy;
+                    InternalMessageListener listener = new InternalMessageListener(proxy);
+                    proxy.Listener = listener;
+                    ui.Tag = listener;
 #if DEBUG
                     Console.WriteLine($"Created addin {proxy.Id} ui elemtnt");
 #endif

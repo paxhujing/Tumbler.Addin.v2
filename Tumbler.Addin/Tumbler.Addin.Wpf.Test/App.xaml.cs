@@ -67,18 +67,6 @@ namespace Tumbler.Addin.Wpf.Test
             throw new NotImplementedException();
         }
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
-            AddinManager am = (AddinManager)AddinManager;
-            var addins = AddinManager.LoadAddins("menu");
-            FrameworkElement ui = null;
-            foreach (var addin in addins.OfType<AddinProxy>())
-            {
-                ui = am.GetAddinUI(addin);
-            }
-        }
-
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             //e.Handled = true;

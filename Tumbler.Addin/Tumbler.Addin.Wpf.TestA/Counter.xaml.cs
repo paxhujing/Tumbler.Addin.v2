@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Tumbler.Addin.Core;
+using Tumbler.Addin.Wpf;
 using Tumbler.Addin.Wpf.TestA.Back;
 
 namespace Tumbler.Addin.Wpf.TestA
@@ -24,12 +26,11 @@ namespace Tumbler.Addin.Wpf.TestA
     {
         private Int32 _counter;
 
-        private readonly TestAAddinProxy _proxy;
+        private InternalMessageListener _listener;
 
         public Counter()
         {
             InitializeComponent();
-            _proxy = (TestAAddinProxy)Tag; 
         }
 
         private void _timer_Tick(object sender, EventArgs e)
@@ -40,6 +41,13 @@ namespace Tumbler.Addin.Wpf.TestA
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
+            _listener = (InternalMessageListener)Tag;
+            _listener.ReceiveInternalMessage += _listener_ReceiveInternalMessage;
+            _listener.SendInternalMessage(1, ContentType.None,null);
+        }
+
+        private void _listener_ReceiveInternalMessage(object sender, InternalMessage e)
+        {
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)

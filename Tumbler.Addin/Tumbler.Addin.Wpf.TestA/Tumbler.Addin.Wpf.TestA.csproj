@@ -81,9 +81,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Tumbler.Addin.Core\Tumbler.Addin.Core.csproj">
+      <Project>{4B86F318-9368-4547-AE7E-BCAB48C35E62}</Project>
+      <Name>Tumbler.Addin.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tumbler.Addin.Wpf.TestA.Back\Tumbler.Addin.Wpf.TestA.Back.csproj">
       <Project>{FBB8CE3A-86F5-4073-9680-243ABEAF9655}</Project>
       <Name>Tumbler.Addin.Wpf.TestA.Back</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tumbler.Addin.Wpf\Tumbler.Addin.Wpf.csproj">
+      <Project>{AD6B032F-07B3-4AD7-9D33-44E2D8755B61}</Project>
+      <Name>Tumbler.Addin.Wpf</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

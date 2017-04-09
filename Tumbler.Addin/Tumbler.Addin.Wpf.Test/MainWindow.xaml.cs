@@ -27,7 +27,15 @@ namespace Tumbler.Addin.Wpf.Test
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            throw new ArgumentException();
+            App app = (App)Application.Current;
+            AddinManager am = (AddinManager)app.AddinManager;
+            var addins = am.LoadAddins("menu");
+            FrameworkElement ui = null;
+            foreach (var addin in addins.OfType<AddinProxy>())
+            {
+                ui = am.GetAddinUI(addin);
+            }
+            Content = ui;
         }
     }
 }
