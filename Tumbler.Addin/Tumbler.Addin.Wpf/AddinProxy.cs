@@ -22,6 +22,7 @@ namespace Tumbler.Addin.Wpf
         protected AddinProxy(IAddin target, String uiType)
             : base(target)
         {
+            if (String.IsNullOrWhiteSpace(uiType)) throw new ArgumentNullException("uiType");
             UIType = uiType;
         }
 

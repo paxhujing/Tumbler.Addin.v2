@@ -62,7 +62,7 @@ namespace Tumbler.Addin.Wpf
         protected override IMessageTarget LoadOnIsolatedAppDomain(Type addinType, XDocument doc)
         {
             AddinProxy proxy = base.LoadOnIsolatedAppDomain(addinType, doc) as AddinProxy;
-            if (proxy != null) proxy.Directory = addinType.Assembly.Location;
+            if (proxy != null) proxy.Directory = Path.GetDirectoryName(addinType.Assembly.Location);
             return proxy;
         }
 
