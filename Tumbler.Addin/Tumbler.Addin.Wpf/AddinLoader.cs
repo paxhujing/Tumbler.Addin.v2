@@ -1,0 +1,73 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Xml.Linq;
+using System.Xml.Schema;
+using Tumbler.Addin.Core;
+
+namespace Tumbler.Addin.Wpf
+{
+    /// <summary>
+    /// 插件加载器。
+    /// </summary>
+    public class AddinLoader : Core.AddinLoader
+    {
+        #region Methods
+
+        #region Public
+
+        /// <summary>
+        /// 获取插件的UI元素。
+        /// </summary>
+        /// <param name="proxy">插件代理。</param>
+        /// <returns>UI元素。</returns>
+        public FrameworkElement GetAddinUI(AddinProxy proxy)
+        {
+            Type uiType = ParseType(proxy.UIType, proxy.Directory);
+            if (uiType == null) return null;
+            try
+            {
+                Assembly assembly = AppDomain.CurrentDomain.Load(uiType.Assembly.FullName);
+                FrameworkElement ui = assembly.CreateInstance(uiType.FullName) as FrameworkElement;
+                if (ui != null)
+                {
+                    ui.Tag = proxy;
+#if DEBUG
+                    Console.WriteLine($"Created addin {proxy.Id} ui elemtnt");
+#endif
+                }
+                return ui;
+            }
+            catch (MissingMemberException ex)
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region Protected
+
+        /// <summary>
+        /// 将插件加载到独立的应用程序域中。
+        /// </summary>
+        /// <param name="type">实现了 IAddin 接口的类型。</param>
+        /// <param name="doc">配置。</param>
+        /// <returns>派生自 AddinProxy 类的实例。</returns>
+        protected override IMessageTarget LoadOnIsolatedAppDomain(Type addinType, XDocument doc)
+        {
+            AddinProxy proxy = base.LoadOnIsolatedAppDomain(addinType, doc) as AddinProxy;
+            if (proxy != null) proxy.Directory = addinType.Assembly.Location;
+            return proxy;
+        }
+
+        #endregion
+
+        #endregion
+    }
+}

@@ -13,7 +13,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件管理器。
     /// </summary>
-    public sealed class AddinManager
+    public class AddinManager
     {
         #region Fields
 
@@ -52,7 +52,7 @@ namespace Tumbler.Addin.Core
         /// <param name="host">宿主。</param>
         /// <param name="globalConfigFile">全局配置文件。</param>
         /// <param name="loader">插件加载器。</param>
-        public AddinManager(IAddinHost host, String globalConfigFile, AddinLoader loader = null)
+        public AddinManager(IAddinHost host, String globalConfigFile)
         {
             if (host == null) throw new ArgumentNullException("host");
             if (String.IsNullOrWhiteSpace(globalConfigFile))
@@ -69,7 +69,7 @@ namespace Tumbler.Addin.Core
             }
             _parser = new AddinConfigParser(globalConfigFile);
             _messageService = new MessageService(host);
-            _loader = loader ?? new AddinLoader();
+            _loader = GetAddinLoader();
         }
 
         #endregion
@@ -175,6 +175,20 @@ namespace Tumbler.Addin.Core
         public void Terminate()
         {
             _messageService.Terminate();
+        }
+
+        #endregion
+
+        #region Protected
+
+        /// <summary>
+        /// 获取插件加载器。
+        /// </summary>
+        /// <returns>插件加载器。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected virtual AddinLoader GetAddinLoader()
+        {
+            return new AddinLoader();
         }
 
         #endregion
