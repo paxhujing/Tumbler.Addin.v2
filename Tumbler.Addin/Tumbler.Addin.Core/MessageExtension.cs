@@ -236,7 +236,8 @@ namespace Tumbler.Addin.Core
                 case ContentType.Object:
                     if (!AppDomain.CurrentDomain.IsDefaultAppDomain()
                         && !(content is ISerializable)
-                        && !(content is MarshalByRefObject))
+                        && !(content is MarshalByRefObject)
+                        && !(content is ValueType))
                     {
                         throw new ArgumentException("Content is not ISerializable or MarshalByRefObject");
                     }

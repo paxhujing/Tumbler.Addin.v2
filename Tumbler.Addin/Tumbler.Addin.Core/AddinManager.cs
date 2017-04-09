@@ -49,9 +49,10 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 初始化类型 Tumbler.Addin.Core.AddinManager 实例。
         /// </summary>
-        /// <param name="host"></param>
-        /// <param name="globalConfigFile"></param>
-        public AddinManager(IAddinHost host, String globalConfigFile)
+        /// <param name="host">宿主。</param>
+        /// <param name="globalConfigFile">全局配置文件。</param>
+        /// <param name="loader">插件加载器。</param>
+        public AddinManager(IAddinHost host, String globalConfigFile, AddinLoader loader = null)
         {
             if (host == null) throw new ArgumentNullException("host");
             if (String.IsNullOrWhiteSpace(globalConfigFile))
@@ -68,7 +69,7 @@ namespace Tumbler.Addin.Core
             }
             _parser = new AddinConfigParser(globalConfigFile);
             _messageService = new MessageService(host);
-            _loader = new AddinLoader();
+            _loader = loader ?? new AddinLoader();
         }
 
         #endregion
