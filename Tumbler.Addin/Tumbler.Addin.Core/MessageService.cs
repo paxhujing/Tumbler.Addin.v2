@@ -134,27 +134,15 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public void Transmit(Message message)
         {
-            String destination = null;
-            ForwardedMessage forwardedMessage = message as ForwardedMessage;
-            //不是转发的消息
-            if (forwardedMessage == null)
+            String destination = message.Destination;
+            if (String.IsNullOrWhiteSpace(destination)) return;
+            if (destination == AddinHostId || destination == _host.Id)
             {
-                destination = message.Destination;
-                if (String.IsNullOrWhiteSpace(destination)) return;
-                if (destination == AddinHostId || destination == _host.Id)
-                {
-                    _host.MessageDispatcher.Queue(message);
-                }
-                else
-                {
-                    TransmitSpecialMessage(message);
-                }
-            }//转发的消息
+                _host.MessageDispatcher.Queue(message);
+            }
             else
             {
-                destination = forwardedMessage.Stations.Last();
-                if (!_regedit.ContainsKey(destination)) return;
-                TransmitSameMessageToSomeone(forwardedMessage, destination);
+                TransmitSpecialMessage(message);
             }
         }
 

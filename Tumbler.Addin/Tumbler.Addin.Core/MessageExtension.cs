@@ -22,7 +22,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static void SendMessage(this IMessageSource sender, Message message)
         {
-            if (sender.Id != message.Source) throw new InvalidOperationException("This message is not yours,maybe you need forward it");
+            if(sender.Id != message.Source) throw new InvalidOperationException("This message is not yours,maybe you need forward it");
             SendMessageImpl(message);
         }
 
@@ -43,9 +43,9 @@ namespace Tumbler.Addin.Core
             ForwardedMessage forwardedMessage = message as ForwardedMessage;
             if (forwardedMessage == null)
             {
-                forwardedMessage = new ForwardedMessage(message.MessageCode, message.Source, message.Destination, message.ContentType, message.Content);
+                forwardedMessage = new ForwardedMessage(message.MessageCode, message.Source, nextDestination, message.ContentType, message.Content);
             }
-            forwardedMessage.Stations.Add(nextDestination);
+            forwardedMessage.Stations.Add(message.Destination);
             SendMessageImpl(forwardedMessage);
         }
 
@@ -148,6 +148,11 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateResponseMessage(this Message requestMessage, ContentType contentType, Object content)
         {
+            ForwardedMessage forwardMessage = requestMessage as ForwardedMessage;
+            if (forwardMessage != null)
+            {
+                return CreateMessage(requestMessage.MessageCode, forwardMessage.Stations.Last(), requestMessage.Source, contentType, content, true);
+            }
             return CreateMessage(requestMessage.MessageCode, requestMessage.Destination, requestMessage.Source, contentType, content, true);
         }
 
