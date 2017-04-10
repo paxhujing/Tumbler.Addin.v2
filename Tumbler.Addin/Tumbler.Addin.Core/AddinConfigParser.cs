@@ -79,7 +79,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetAddinNodes(String groupName)
         {
-            XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
+            XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
             return addinGroupNode.Elements(AddinNodeName);
         }
@@ -93,7 +93,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetSubAddinNodes(String groupName, String subName)
         {
-            XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
+            XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
             XElement subNode = addinGroupNode.Elements(AddinGroupSubNodeName).FirstOrDefault(x => x.Attribute("name").Value == subName);
             if (subNode == null) return null;
@@ -107,7 +107,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<XElement> GetServiceNodes()
         {
-            return _services.Elements(ServiceNodeName);
+            return _services?.Elements(ServiceNodeName);
         }
 
         #endregion
