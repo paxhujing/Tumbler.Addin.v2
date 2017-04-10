@@ -17,7 +17,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 发送消息。
         /// </summary>
-        /// <param name="service">要发送消息的对象。</param>
+        /// <param name="sender">要发送消息的对象。</param>
         /// <param name="message">消息。</param>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static void SendMessage(this IMessageSource sender, Message message)

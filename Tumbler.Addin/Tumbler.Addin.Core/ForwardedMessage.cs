@@ -23,7 +23,6 @@ namespace Tumbler.Addin.Core
         /// <param name="messageCode">消息码。</param>
         /// <param name="destination">消息目标。</param>
         /// <param name="source">消息源。</param>
-        /// <param name="isResponse">是否是响应消息。</param>
         /// <param name="contentType">消息内容的类型。</param>
         /// <param name="content">消息内容。</param>
         internal ForwardedMessage(Int32 messageCode, String destination, String source, ContentType contentType, Object content)

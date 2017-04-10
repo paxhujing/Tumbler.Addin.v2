@@ -52,7 +52,6 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="host">宿主。</param>
         /// <param name="globalConfigFile">全局配置文件。</param>
-        /// <param name="loader">插件加载器。</param>
         public AddinManager(IAddinHost host, String globalConfigFile)
         {
             if (host == null) throw new ArgumentNullException("host");

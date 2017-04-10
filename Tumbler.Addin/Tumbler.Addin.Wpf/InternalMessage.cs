@@ -7,6 +7,9 @@ using Tumbler.Addin.Core;
 
 namespace Tumbler.Addin.Wpf
 {
+    /// <summary>
+    /// 内部消息。
+    /// </summary>
     public class InternalMessage : MarshalByRefObject
     {
         #region Constructors

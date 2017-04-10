@@ -106,7 +106,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 将插件加载到独立的应用程序域中。
         /// </summary>
-        /// <param name="type">实现了 IAddin 接口的类型。</param>
+        /// <param name="addinType">实现了 IAddin 接口的类型。</param>
         /// <param name="doc">配置。</param>
         /// <returns>派生自 AddinProxy 类的实例。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
@@ -140,7 +140,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 将插件加载到默认的应用程序域中。
         /// </summary>
-        /// <param name="type">实现了 IAddin 接口的类型。</param>
+        /// <param name="addinType">实现了 IAddin 接口的类型。</param>
         /// <param name="doc">配置。</param>
         /// <returns>实现了 IAddin 接口的类型。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]

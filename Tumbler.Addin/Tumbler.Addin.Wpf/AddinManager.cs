@@ -26,7 +26,6 @@ namespace Tumbler.Addin.Wpf
         /// </summary>
         /// <param name="host">宿主。</param>
         /// <param name="globalConfigFile">全局配置文件。</param>
-        /// <param name="loader">插件加载器。</param>
         public AddinManager(IAddinHost host, string globalConfigFile)
             : base(host, globalConfigFile)
         {
@@ -60,7 +59,7 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 卸载有UI的插件。
         /// </summary>
-        /// <param name="ui">一组UI元素。</param>
+        /// <param name="uis">一组UI元素。</param>
         public void Unload(IEnumerable<FrameworkElement> uis)
         {
             foreach (FrameworkElement ui in uis)

@@ -85,18 +85,6 @@ namespace Tumbler.Addin.Core
         }
 
         /// <summary>
-        /// 获取插件组中的子组节点。
-        /// </summary>
-        /// <param name="groupName">子组名称。</param>
-        /// <returns>子组节点。</returns>
-        //public IEnumerable<XElement> GetSubNodes(String groupName)
-        //{
-        //    XElement addinGroupNode = _addinGroups.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
-        //    if (addinGroupNode == null) return null;
-        //    return addinGroupNode.Elements(AddinGroupSubNodeName);
-        //}
-
-        /// <summary>
         /// 获取插件组中子组的插件节点。
         /// </summary>
         /// <param name="groupName">组名称。</param>

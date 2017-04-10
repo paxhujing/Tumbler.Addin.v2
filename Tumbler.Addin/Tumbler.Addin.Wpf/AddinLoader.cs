@@ -70,7 +70,7 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 将插件加载到独立的应用程序域中。
         /// </summary>
-        /// <param name="type">实现了 IAddin 接口的类型。</param>
+        /// <param name="addinType">实现了 IAddin 接口的类型。</param>
         /// <param name="doc">配置。</param>
         /// <returns>派生自 AddinProxy 类的实例。</returns>
         protected override IMessageTarget LoadOnIsolatedAppDomain(Type addinType, XDocument doc)

@@ -41,7 +41,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 初始化类型 Tumbler.Addin.Core.MessageDispathcer 实例。
         /// </summary>
-        /// <param name="callback">回调方法。</param>
+        /// <param name="target">实现了 IMessageTarget 接口的类型实例。</param>
         public MessageDispatcher(IMessageTarget target)
         {
             if (target == null) throw new ArgumentNullException("target");
