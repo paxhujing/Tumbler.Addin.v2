@@ -36,6 +36,10 @@ namespace Tumbler.Addin.Core
         /// </summary>
         CrossDomainObject,
         /// <summary>
+        /// 非跨域传输的对象。
+        /// </summary>
+        Object,
+        /// <summary>
         /// 异常信息。
         /// </summary>
         Exception,

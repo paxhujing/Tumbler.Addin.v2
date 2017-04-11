@@ -248,6 +248,12 @@ namespace Tumbler.Addin.Core
                         throw new ArgumentException("Content is not ISerializable or MarshalByRefObject");
                     }
                     break;
+                case ContentType.Object:
+                    if (!AppDomain.CurrentDomain.IsDefaultAppDomain())
+                    {
+                        throw new ArgumentException("The object transmition is not in default appdomain");
+                    }
+                    break;
                 case ContentType.None:
                 default:
                     return new Message(messageCode, destination, source, contentType, null) { IsResponse = isResponse };
