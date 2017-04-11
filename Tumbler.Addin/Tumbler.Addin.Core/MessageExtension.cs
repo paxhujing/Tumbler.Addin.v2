@@ -43,9 +43,15 @@ namespace Tumbler.Addin.Core
             ForwardedMessage forwardedMessage = message as ForwardedMessage;
             if (forwardedMessage == null)
             {
-                forwardedMessage = new ForwardedMessage(message.MessageCode, message.Source, nextDestination, message.ContentType, message.Content);
+                String preStation = message.Destination;
+                forwardedMessage = new ForwardedMessage(message.MessageCode, nextDestination, message.Source, message.ContentType, message.Content);
+                forwardedMessage.Stations.Add(preStation);
             }
-            forwardedMessage.Stations.Add(message.Destination);
+            else
+            {
+                forwardedMessage.Stations.Add(forwardedMessage.Destination);
+                forwardedMessage.Destination = nextDestination;
+            }
             SendMessageImpl(forwardedMessage);
         }
 
@@ -148,11 +154,6 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateResponseMessage(this Message requestMessage, ContentType contentType, Object content)
         {
-            ForwardedMessage forwardMessage = requestMessage as ForwardedMessage;
-            if (forwardMessage != null)
-            {
-                return CreateMessage(requestMessage.MessageCode, forwardMessage.Stations.Last(), requestMessage.Source, contentType, content, true);
-            }
             return CreateMessage(requestMessage.MessageCode, requestMessage.Destination, requestMessage.Source, contentType, content, true);
         }
 
