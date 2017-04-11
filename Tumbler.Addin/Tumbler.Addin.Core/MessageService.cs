@@ -164,6 +164,20 @@ namespace Tumbler.Addin.Core
 
         #endregion
 
+        #region Internal
+
+        /// <summary>
+        /// 获取宿主的真实Id。
+        /// </summary>
+        /// <returns>宿主的真实Id。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        internal String GetHostActualId()
+        {
+            return _host?.Id;
+        }
+
+        #endregion
+
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]

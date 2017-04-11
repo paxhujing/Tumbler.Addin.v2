@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Wpf
     /// <summary>
     /// 插件代理。用于插件与宿主之间的通信。
     /// </summary>
-    public abstract class AddinProxy : Core.AddinProxy
+    public abstract class WpfAddinProxy : AddinProxy
     {
         #region Constructors
 
@@ -19,7 +19,7 @@ namespace Tumbler.Addin.Wpf
         /// </summary>
         /// <param name="target">插件。</param>
         /// <param name="uiType">UI元素的类型限定名。</param>
-        protected AddinProxy(IAddin target, String uiType)
+        protected WpfAddinProxy(IAddin target, String uiType)
             : base(target)
         {
             if (String.IsNullOrWhiteSpace(uiType)) throw new ArgumentNullException("uiType");

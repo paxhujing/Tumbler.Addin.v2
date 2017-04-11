@@ -118,7 +118,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static Message CreateMulticastMessage(this IMessageSource source, Int32 messageCode, String[] destinations, ContentType contentType, Object content)
         {
-            if (destinations == null || destinations.Length < 2)
+            if (destinations == null || destinations.Length < 1)
             {
                 throw new ArgumentException("destinations");
             }
@@ -183,6 +183,30 @@ namespace Tumbler.Addin.Core
         public static String ReadAsString(this Message message)
         {
             return message.Content as String;
+        }
+
+        /// <summary>
+        /// 消息是否来自宿主。
+        /// </summary>
+        /// <param name="target">接收消息的目标。</param>
+        /// <param name="message">消息。</param>
+        /// <returns>如果是来自宿主的消息返回true；否则返回false。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public static Boolean IsFromHost(this IMessageTarget target, Message message)
+        {
+            if (message.Source == MessageService.AddinHostId) return true;
+            String hostActualId = null;
+            if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+            {
+                MessageService ms = AppDomain.CurrentDomain.GetData("ms") as MessageService;
+                hostActualId = ms?.GetHostActualId();
+            }
+            else
+            {
+                AddinProxy proxy = AppDomain.CurrentDomain.GetData("proxy") as AddinProxy;
+                hostActualId = proxy?.GetHostActualId();
+            }
+            return hostActualId == message.Source;
         }
 
         #endregion

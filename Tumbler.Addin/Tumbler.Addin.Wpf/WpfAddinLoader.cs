@@ -15,7 +15,7 @@ namespace Tumbler.Addin.Wpf
     /// <summary>
     /// 插件加载器。
     /// </summary>
-    public class AddinLoader : Core.AddinLoader
+    public class WpfAddinLoader : AddinLoader
     {
         #region Methods
 
@@ -26,7 +26,7 @@ namespace Tumbler.Addin.Wpf
         /// </summary>
         /// <param name="proxy">插件代理。</param>
         /// <returns>UI元素。</returns>
-        public FrameworkElement GetAddinUI(AddinProxy proxy)
+        public FrameworkElement GetAddinUI(WpfAddinProxy proxy)
         {
             Type uiType = ParseType(proxy.UIType, proxy.Directory);
             if (uiType == null) return null;
@@ -76,7 +76,11 @@ namespace Tumbler.Addin.Wpf
         protected override IMessageTarget LoadOnIsolatedAppDomain(Type addinType, XDocument doc)
         {
             AddinProxy proxy = base.LoadOnIsolatedAppDomain(addinType, doc) as AddinProxy;
-            if (proxy != null) proxy.Directory = Path.GetDirectoryName(addinType.Assembly.Location);
+            if (proxy != null)
+            {
+                WpfAddinProxy wpfProxy = proxy as WpfAddinProxy;
+                if (wpfProxy != null) wpfProxy.Directory = Path.GetDirectoryName(addinType.Assembly.Location);
+            }
             return proxy;
         }
 

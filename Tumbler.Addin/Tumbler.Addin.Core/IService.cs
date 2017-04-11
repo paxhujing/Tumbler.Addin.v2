@@ -11,5 +11,15 @@ namespace Tumbler.Addin.Core
     /// </summary>
     public interface IService : IAddin
     {
+        /// <summary>
+        /// 开始。
+        /// </summary>
+        /// <returns>成功返回true；否则返回false。</returns>
+        Boolean Start();
+
+        /// <summary>
+        /// 停止。
+        /// </summary>
+        void Stop();
     }
 }

@@ -68,11 +68,26 @@ namespace Tumbler.Addin.Core
         /// </summary>
         internal AppDomain Owner { get; set; }
 
+        /// <summary>
+        /// 代理关联的对象。
+        /// </summary>
+        protected IMessageTarget Target => _target;
+
         #endregion
 
         #region Methods
 
         #region Public
+
+        /// <summary>
+        /// 获取宿主的真实Id。
+        /// </summary>
+        /// <returns>宿主的真实Id。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public String GetHostActualId()
+        {
+            return MessageService?.GetHostActualId();
+        }
 
         /// <summary>
         /// 将消息转发给实际的对象。

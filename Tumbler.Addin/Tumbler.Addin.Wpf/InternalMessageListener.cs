@@ -26,7 +26,7 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 初始化类型 Tumbler.Addin.Wpf.InternalMessageListner 实例。
         /// </summary>
-        internal InternalMessageListener(AddinProxy proxy)
+        internal InternalMessageListener(WpfAddinProxy proxy)
         {
             Proxy = proxy;
         }
@@ -38,7 +38,7 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 插件代理。
         /// </summary>
-        internal AddinProxy Proxy { get; }
+        internal WpfAddinProxy Proxy { get; }
 
         #endregion
 

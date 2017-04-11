@@ -121,10 +121,10 @@ namespace Tumbler.Addin.Core
             {
                 AddinProxy proxy = (AddinProxy)domain.CreateInstanceAndUnwrap(addinType.Assembly.FullName, addinType.FullName + "Proxy");
                 if (proxy.Id != id) throw new InvalidDataException("The id in config not match");
-                proxy.Owner = domain;
-                proxy.Load();
                 domain.SetData("proxy", proxy);
                 domain.SetData("id", id);
+                proxy.Owner = domain;
+                proxy.Load();
 #if DEBUG
                 Console.WriteLine($"Created isolated addin {proxy.Id} in {domain.FriendlyName}");
 #endif

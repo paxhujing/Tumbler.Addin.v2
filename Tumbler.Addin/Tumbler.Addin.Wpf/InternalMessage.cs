@@ -49,12 +49,12 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 消息内容类型。
         /// </summary>
-        public ContentType ContentType { get; }
+        public ContentType ContentType { get; set; }
 
         /// <summary>
         /// 消息内容。
         /// </summary>
-        public Object Content { get; }
+        public Object Content { get; set; }
 
         #endregion
     }

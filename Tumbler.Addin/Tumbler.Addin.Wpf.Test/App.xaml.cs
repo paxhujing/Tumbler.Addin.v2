@@ -18,7 +18,7 @@ namespace Tumbler.Addin.Wpf.Test
         public App()
         {
             MessageDispatcher = new MessageDispatcher(this);
-            AddinManager = new AddinManager(this, @"addins\addins.xml");
+            AddinManager = new WpfAddinManager(this, @"addins\addins.xml");
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
         }
 
