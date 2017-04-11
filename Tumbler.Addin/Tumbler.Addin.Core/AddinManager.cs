@@ -90,7 +90,7 @@ namespace Tumbler.Addin.Core
             if (String.IsNullOrWhiteSpace(groupName)) return null;
             IEnumerable<XElement> addinNodes = _parser.GetAddinNodes(groupName);
             if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes);
+            return LoadAddinImpl(addinNodes, false);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Tumbler.Addin.Core
             if (String.IsNullOrWhiteSpace(groupName)) return null;
             IEnumerable<XElement> addinNodes = _parser.GetSubAddinNodes(groupName, subName);
             if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes);
+            return LoadAddinImpl(addinNodes, false);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Tumbler.Addin.Core
         {
             IEnumerable<XElement> addinNodes = _parser.GetServiceNodes();
             if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes);
+            return LoadAddinImpl(addinNodes, true);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<XElement> addinNodes)
+        private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<XElement> addinNodes, Boolean isService)
         {
             Collection<IMessageTarget> proxys = new Collection<IMessageTarget>();
             if (addinNodes != null)
@@ -213,7 +213,7 @@ namespace Tumbler.Addin.Core
                 UpdateContextPropertyMethod.Invoke(null, new Object[] { FunsionHandle, "PRIVATE_BINPATH", privateBinPath });
                 foreach (XElement addinNode in validAddinNodes)
                 {
-                    temp = _loader.LoadAddin(addinNode);
+                    temp = isService ? _loader.LoadService(addinNode) : _loader.LoadAddin(addinNode);
                     if (temp == null) continue;
                     _messageService.Register(temp);
                     proxys.Add(temp);
