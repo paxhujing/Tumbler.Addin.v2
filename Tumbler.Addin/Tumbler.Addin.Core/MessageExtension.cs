@@ -22,7 +22,18 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public static void SendMessage(this IMessageSource sender, Message message)
         {
-            if(sender.Id != message.Source) throw new InvalidOperationException("This message is not yours,maybe you need forward it");
+            IAddinHost host = sender as IAddinHost;
+            if (host != null)
+            {
+                if (message.Source != host.Id && message.Source != MessageService.AddinHostId)
+                {
+                    throw new InvalidOperationException("This message is not yours,maybe you need forward it");
+                }
+            }
+            else if(sender.Id != message.Source)
+            {
+                throw new InvalidOperationException("This message is not yours,maybe you need forward it");
+            }
             SendMessageImpl(message);
         }
 

@@ -18,7 +18,7 @@ namespace Tumbler.Addin.Core
         MessageDispatcher MessageDispatcher { get; }
 
         /// <summary>
-        /// 当收到的消息时执行。
+        /// 当收到消息时执行。
         /// </summary>
         /// <param name="message">消息。</param>
         void OnReceive(Message message);

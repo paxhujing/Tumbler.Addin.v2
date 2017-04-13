@@ -45,7 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddinBase.cs" />
     <Compile Include="AddinConfigParser.cs" />
+    <Compile Include="AddinInfo.cs" />
     <Compile Include="AddinLoader.cs" />
     <Compile Include="AddinManager.cs" />
     <Compile Include="AddinProxy.cs" />

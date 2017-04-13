@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<addin id="0FAEE6AA-72BA-4E13-8689-2B1F86A2502C" 
+       type="Tumbler.Addin.Wpf.TestA.Back.TestAAddin,Tumbler.Addin.Wpf.TestA.Back" updateUrl="">
+  <info>
+    <name></name>
+    <author></author>
+    <copyright></copyright>
+    <url></url>
+    <description></description>
+  </info>
+</addin>

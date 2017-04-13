@@ -79,6 +79,17 @@ namespace Tumbler.Addin.Core
         #region Public
 
         /// <summary>
+        /// 获取插件信息。
+        /// </summary>
+        /// <param name="location">插件配置路径。</param>
+        /// <returns>插件信息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public AddinInfo GetAddinInfo(String location)
+        {
+            return _parser.GetAddinInfo(location);
+        }
+
+        /// <summary>
         /// 加载插件。
         /// </summary>
         /// <param name="groupName">插件配置中的组名称。</param>

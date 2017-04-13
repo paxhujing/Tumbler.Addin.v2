@@ -56,7 +56,7 @@ namespace Tumbler.Addin.Wpf
         public InternalMessage SendInternalMessage(Int32 messageCode, Core.ContentType contentType, Object content)
         {
             InternalMessage message = new InternalMessage(messageCode, contentType, content);
-            Proxy.OnInternalRequest(message);
+            Proxy.OnInternalReceive(message);
             return message;
         }
 

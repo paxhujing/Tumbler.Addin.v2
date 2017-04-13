@@ -44,6 +44,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalMessageExtension.cs" />
+    <Compile Include="IWpfAddin.cs" />
+    <Compile Include="WpfAddinBase.cs" />
     <Compile Include="WpfAddinLoader.cs" />
     <Compile Include="WpfAddinManager.cs" />
     <Compile Include="WpfAddinProxy.cs" />

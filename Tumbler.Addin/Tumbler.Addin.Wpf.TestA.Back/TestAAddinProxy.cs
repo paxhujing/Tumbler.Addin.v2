@@ -13,10 +13,5 @@ namespace Tumbler.Addin.Wpf.TestA.Back
             : base(new TestAAddin(), "Tumbler.Addin.Wpf.TestA.Counter,Tumbler.Addin.Wpf.TestA")
         {
         }
-
-        public override void OnInternalRequest(InternalMessage message)
-        {
-            OnSendInternalMessage(message);
-        }
     }
 }

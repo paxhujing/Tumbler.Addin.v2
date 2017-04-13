@@ -72,6 +72,34 @@ namespace Tumbler.Addin.Core
         #region Public
 
         /// <summary>
+        /// 获取插件信息。
+        /// </summary>
+        /// <param name="location">插件配置路径。</param>
+        /// <returns>插件信息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public AddinInfo GetAddinInfo(String location)
+        {
+            String path = Path.Combine(AddinConfigParser.AddinDirectory, location);
+            if (!File.Exists(path)) return null;
+            XDocument doc = XDocument.Load(path);
+            AddinInfo info = new AddinInfo();
+            XElement root = doc.Root;
+            info.Id = root.Attribute("id")?.Value;
+            info.Type = root.Attribute("type")?.Value;
+            info.UpdateUrl = root.Attribute("updateUrl")?.Value;
+            XElement infoElement = root.Element("info");
+            if (infoElement != null)
+            {
+                info.Name = infoElement.Attribute("name")?.Value;
+                info.Author = infoElement.Attribute("author")?.Value;
+                info.Copyright = infoElement.Attribute("copyright")?.Value;
+                info.Url = infoElement.Attribute("url")?.Value;
+                info.Description = infoElement.Attribute("description")?.Value;
+            }
+            return info;
+        }
+
+        /// <summary>
         /// 获取插件组中的插件节点。
         /// </summary>
         /// <param name="groupName">组名称。</param>
