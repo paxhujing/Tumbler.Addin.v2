@@ -93,6 +93,17 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 加载插件。
         /// </summary>
+        /// <param name="info">插件信息。</param>
+        /// <returns>如果成功则不为null。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IMessageTarget LoadAddin(AddinInfo info)
+        {
+            return LoadAddinImpl(new AddinInfo[] { info }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 加载插件。
+        /// </summary>
         /// <param name="groupName">插件配置中的组名称。</param>
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的插件列表。</returns>
