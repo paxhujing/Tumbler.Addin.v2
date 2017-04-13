@@ -109,12 +109,12 @@ namespace Tumbler.Addin.Core
         }
 
         /// <summary>
-        /// 获取插件组中的插件节点。
+        /// 获取插件组中的插件信息。
         /// </summary>
         /// <param name="groupName">组名称。</param>
         /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<AddinInfo> GetAddinNodes(String groupName)
+        public IEnumerable<AddinInfo> GetAddinInfos(String groupName)
         {
             XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
@@ -124,13 +124,13 @@ namespace Tumbler.Addin.Core
         }
 
         /// <summary>
-        /// 获取插件组中子组的插件节点。
+        /// 获取插件组中子组的插件信息。
         /// </summary>
         /// <param name="groupName">组名称。</param>
         /// <param name="subName">子组名称。</param>
         /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<AddinInfo> GetSubAddinNodes(String groupName, String subName)
+        public IEnumerable<AddinInfo> GetSubAddinInfos(String groupName, String subName)
         {
             XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
@@ -142,11 +142,11 @@ namespace Tumbler.Addin.Core
         }
 
         /// <summary>
-        /// 获取服务节点。
+        /// 获取服务插件信息。
         /// </summary>
         /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<AddinInfo> GetServiceNodes()
+        public IEnumerable<AddinInfo> GetServiceInfos()
         {
             IEnumerable<XElement> addinConfigs = _services?.Elements(ServiceNodeName);
             if (addinConfigs == null) return null;

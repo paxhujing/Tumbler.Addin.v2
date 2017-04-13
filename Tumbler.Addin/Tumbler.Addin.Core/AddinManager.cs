@@ -100,7 +100,7 @@ namespace Tumbler.Addin.Core
         public IEnumerable<IMessageTarget> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<AddinInfo> infos = _parser.GetAddinNodes(groupName);
+            IEnumerable<AddinInfo> infos = _parser.GetAddinInfos(groupName);
             if (filter != null) infos = filter(infos);
             return LoadAddinImpl(infos);
         }
@@ -116,11 +116,24 @@ namespace Tumbler.Addin.Core
         public IEnumerable<IMessageTarget> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<AddinInfo> infos = _parser.GetSubAddinNodes(groupName, subName);
+            IEnumerable<AddinInfo> infos = _parser.GetSubAddinInfos(groupName, subName);
             if (filter != null) infos = filter(infos);
             return LoadAddinImpl(infos);
         }
 
+
+        /// <summary>
+        /// 加载服务插件。
+        /// </summary>
+        /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
+        /// <returns>加载成功的服务插件列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<IMessageTarget> LoadServices(Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        {
+            IEnumerable<AddinInfo> infos = _parser.GetServiceInfos();
+            if (filter != null) infos = filter(infos);
+            return LoadAddinImpl(infos);
+        }
         /// <summary>
         /// 卸载插件。
         /// </summary>
@@ -209,7 +222,7 @@ namespace Tumbler.Addin.Core
         private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<AddinInfo> infos)
         {
             Collection<IMessageTarget> proxys = new Collection<IMessageTarget>();
-            if (infos.Count() != 0)
+            if (infos != null && infos.Count() != 0)
             {
                 IMessageTarget temp = null;
                 StringBuilder sb = new StringBuilder(AppDomain.CurrentDomain.SetupInformation.PrivateBinPath);
