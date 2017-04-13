@@ -91,6 +91,37 @@ namespace Tumbler.Addin.Core
         }
 
         /// <summary>
+        /// 获取插件信息。
+        /// </summary>
+        /// <param name="groupName">插件配置中的组名称。</param>
+        /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
+        /// <returns>插件信息列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<AddinInfo> GetAddinInfos(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        {
+            if (String.IsNullOrWhiteSpace(groupName)) return null;
+            IEnumerable<AddinInfo> infos = _parser.GetAddinInfos(groupName);
+            if (filter != null) infos = filter(infos);
+            return infos;
+        }
+
+        /// <summary>
+        /// 获取插件信息。
+        /// </summary>
+        /// <param name="groupName">插件配置中的组名称。</param>
+        /// <param name="subName">插件配置中的子组名称。</param>
+        /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
+        /// <returns>插件信息列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<AddinInfo> GetAddinInfos(String groupName,String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        {
+            if (String.IsNullOrWhiteSpace(groupName) || String.IsNullOrWhiteSpace(subName)) return null;
+            IEnumerable<AddinInfo> infos = _parser.GetSubAddinInfos(groupName, subName);
+            if (filter != null) infos = filter(infos);
+            return infos;
+        }
+
+        /// <summary>
         /// 加载插件。
         /// </summary>
         /// <param name="info">插件信息。</param>
@@ -110,10 +141,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<IMessageTarget> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
-            if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<AddinInfo> infos = _parser.GetAddinInfos(groupName);
-            if (filter != null) infos = filter(infos);
-            return LoadAddinImpl(infos);
+            return LoadAddinImpl(GetAddinInfos(groupName, filter));
         }
 
         /// <summary>
@@ -126,12 +154,8 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<IMessageTarget> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
-            if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<AddinInfo> infos = _parser.GetSubAddinInfos(groupName, subName);
-            if (filter != null) infos = filter(infos);
-            return LoadAddinImpl(infos);
+            return LoadAddinImpl(GetAddinInfos(groupName, subName, filter));
         }
-
 
         /// <summary>
         /// 加载服务插件。
