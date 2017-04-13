@@ -20,8 +20,6 @@ namespace Tumbler.Addin.Core
     {
         #region Fields
 
-        private readonly XmlSchemaSet _addinXmlSchema;
-
         #endregion
 
         #region Constructors
@@ -31,10 +29,6 @@ namespace Tumbler.Addin.Core
         /// </summary>
         public AddinLoader()
         {
-            Stream stream = GetAddinSchemaStream();
-            XmlReader schemaXml = XmlReader.Create(stream);
-            _addinXmlSchema = new XmlSchemaSet();
-            _addinXmlSchema.Add(null, schemaXml);
             AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += OnReflectionOnlyAssemblyResolve;
         }
 
@@ -47,31 +41,13 @@ namespace Tumbler.Addin.Core
         /// <summary>
         ///加载插件。
         /// </summary>
-        /// <param name="addinNode">插件节点。</param>
+        /// <param name="addinInfo">插件信息。</param>
         /// <returns>插件代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IMessageTarget LoadAddin(XElement addinNode)
+        public IMessageTarget LoadAddin(AddinInfo addinInfo)
         {
-            if (addinNode.Name != AddinConfigParser.AddinNodeName) return null;
-            String directory;
-            XDocument doc = GetAddinConfigImpl(addinNode, out directory);
-            if (doc == null) return null;
-            return LoadImpl(doc, directory);
-        }
-
-        /// <summary>
-        /// 加载服务。
-        /// </summary>
-        /// <param name="serviceNode">服务节点。</param>
-        /// <returns>服务代理。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IMessageTarget LoadService(XElement serviceNode)
-        {
-            if (serviceNode.Name != AddinConfigParser.ServiceNodeName) return null;
-            String directory;
-            XDocument doc = GetAddinConfigImpl(serviceNode, out directory);
-            if (doc == null) return null;
-            return LoadImpl(doc, directory);
+            if (addinInfo == null || addinInfo == AddinInfo.Invalid) return null;
+            return LoadImpl(addinInfo);
         }
 
         /// <summary>
@@ -94,25 +70,15 @@ namespace Tumbler.Addin.Core
         #region Protected
 
         /// <summary>
-        /// 获取插件架构。
-        /// </summary>
-        /// <returns>插件架构。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual Stream GetAddinSchemaStream()
-        {
-            return Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.AddinConfigSchema.xsd");
-        }
-
-        /// <summary>
         /// 将插件加载到独立的应用程序域中。
         /// </summary>
         /// <param name="addinType">实现了 IAddin 接口的类型。</param>
-        /// <param name="doc">配置。</param>
+        /// <param name="info">插件信息。</param>
         /// <returns>派生自 AddinProxy 类的实例。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual IMessageTarget LoadOnIsolatedAppDomain(Type addinType, XDocument doc)
+        protected virtual IMessageTarget LoadOnIsolatedAppDomain(Type addinType, AddinInfo info)
         {
-            String id = doc.Root.Attribute("id").Value;
+            String id = info.Id;
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationName = id;
             setup.ApplicationBase = Path.GetDirectoryName(addinType.Assembly.Location);
@@ -141,14 +107,14 @@ namespace Tumbler.Addin.Core
         /// 将插件加载到默认的应用程序域中。
         /// </summary>
         /// <param name="addinType">实现了 IAddin 接口的类型。</param>
-        /// <param name="doc">配置。</param>
+        /// <param name="info">插件信息。</param>
         /// <returns>实现了 IAddin 接口的类型。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual IMessageTarget LoadOnDefaultAppDomain(Type addinType, XDocument doc)
+        protected virtual IMessageTarget LoadOnDefaultAppDomain(Type addinType, AddinInfo info)
         {
             try
             {
-                String id = doc.Root.Attribute("id").Value;
+                String id = info.Id;
                 Assembly assembly = AppDomain.CurrentDomain.Load(addinType.Assembly.FullName);
                 IAddin addin = assembly.CreateInstance(addinType.FullName) as IAddin;
                 if (addin != null)
@@ -170,11 +136,11 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 在反射上下文中解析类型。
         /// </summary>
-        /// <param name="type">类型名称。</param>
-        /// <param name="directory">目录。</param>
+        /// <param name="type">插件类型。</param>
+        /// <param name="directory">所在目录</param>
         /// <returns>反射上下文中的类型。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected Type ParseType(String type,String directory)
+        protected Type ParseType(String type, String directory)
         {
             try
             {
@@ -197,50 +163,19 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private XDocument GetAddinConfigImpl(XElement node,out String directory)
+        private IMessageTarget LoadImpl(AddinInfo info)
         {
-            directory = null;
-            String location = node.Attribute("location").Value;
-            try
-            {
-                XDocument config = XDocument.Load(location);
-                config.Validate(_addinXmlSchema, ValidationEventHandler);
-                directory = Path.GetDirectoryName(location);
-                return config;
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return null;
-            }
-            catch (FileNotFoundException)
-            {
-                return null;
-            }
-            catch (XmlSchemaValidationException)
-            {
-                return null;
-            }
-        }
-
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IMessageTarget LoadImpl(XDocument doc, String directory)
-        {
-            String type = doc.Root.Attribute("type").Value;
-            Type addinType = ParseType(type, directory);
+            Type addinType = ParseType(info.Type, info.Directory);
             if (addinType == null) return null;
             Boolean needProxy = addinType.GetCustomAttributesData().SingleOrDefault(x =>
                 x.AttributeType.AssemblyQualifiedName == typeof(AddinProxyAttribute).AssemblyQualifiedName) != null;
             if (needProxy)
             {
-                return LoadOnIsolatedAppDomain(addinType, doc);
+                return LoadOnIsolatedAppDomain(addinType, info);
             }
             else
             {
-                return LoadOnDefaultAppDomain(addinType, doc);
+                return LoadOnDefaultAppDomain(addinType, info);
             }
         }
 
@@ -256,12 +191,6 @@ namespace Tumbler.Addin.Core
             AssemblyName an = new AssemblyName(args.Name);
             String file = Path.Combine(directory, an.Name + ".dll");
             return Assembly.ReflectionOnlyLoadFrom(file);
-        }
-
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private void ValidationEventHandler(Object sender, ValidationEventArgs e)
-        {
-            throw new XmlSchemaValidationException(e.Message);
         }
 
         #endregion

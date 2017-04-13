@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace Tumbler.Addin.Core
 {
@@ -67,9 +68,9 @@ namespace Tumbler.Addin.Core
             {
                 throw new FileNotFoundException(globalConfigFile);
             }
-            _parser = new AddinConfigParser(globalConfigFile);
+            _parser = CreateAddinConfigParser(globalConfigFile);
             _messageService = new MessageService(host);
-            _loader = GetAddinLoader();
+            _loader = CreateAddinLoader();
         }
 
         #endregion
@@ -96,12 +97,12 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadAddins(String groupName, Func<IEnumerable<XElement>, IEnumerable<XElement>> filter = null)
+        public IEnumerable<IMessageTarget> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<XElement> addinNodes = _parser.GetAddinNodes(groupName);
-            if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes, false);
+            IEnumerable<AddinInfo> infos = _parser.GetAddinNodes(groupName);
+            if (filter != null) infos = filter(infos);
+            return LoadAddinImpl(infos);
         }
 
         /// <summary>
@@ -112,25 +113,12 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadAddins(String groupName, String subName, Func<IEnumerable<XElement>, IEnumerable<XElement>> filter = null)
+        public IEnumerable<IMessageTarget> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             if (String.IsNullOrWhiteSpace(groupName)) return null;
-            IEnumerable<XElement> addinNodes = _parser.GetSubAddinNodes(groupName, subName);
-            if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes, false);
-        }
-
-        /// <summary>
-        /// 加载服务。
-        /// </summary>
-        /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
-        /// <returns>加载成功的服务列表。</returns>
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadServices(Func<IEnumerable<XElement>, IEnumerable<XElement>> filter = null)
-        {
-            IEnumerable<XElement> addinNodes = _parser.GetServiceNodes();
-            if (filter != null) addinNodes = filter(addinNodes);
-            return LoadAddinImpl(addinNodes, true);
+            IEnumerable<AddinInfo> infos = _parser.GetSubAddinNodes(groupName, subName);
+            if (filter != null) infos = filter(infos);
+            return LoadAddinImpl(infos);
         }
 
         /// <summary>
@@ -193,13 +181,24 @@ namespace Tumbler.Addin.Core
         #region Protected
 
         /// <summary>
-        /// 获取插件加载器。
+        /// 创建插件加载器。
         /// </summary>
         /// <returns>插件加载器。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual AddinLoader GetAddinLoader()
+        protected virtual AddinLoader CreateAddinLoader()
         {
             return new AddinLoader();
+        }
+
+        /// <summary>
+        /// 创建插件解析器。
+        /// </summary>
+        /// <param name="globalConfigFile">插件全局配置文件。</param>
+        /// <returns>插件解析器。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected virtual AddinConfigParser CreateAddinConfigParser(String globalConfigFile)
+        {
+            return new AddinConfigParser(globalConfigFile);
         }
 
         #endregion
@@ -207,43 +206,30 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<XElement> addinNodes, Boolean isService)
+        private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<AddinInfo> infos)
         {
             Collection<IMessageTarget> proxys = new Collection<IMessageTarget>();
-            if (addinNodes != null)
+            if (infos.Count() != 0)
             {
                 IMessageTarget temp = null;
                 StringBuilder sb = new StringBuilder(AppDomain.CurrentDomain.SetupInformation.PrivateBinPath);
-                Collection<XElement> validAddinNodes = new Collection<XElement>();
-                foreach (XElement addinNode in addinNodes)
+                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                foreach (AddinInfo info in infos)
                 {
-                    UpdatePrivateBinPath(addinNode, ref sb, ref validAddinNodes);
+                    sb.Append($"addins/{Path.GetDirectoryName(info.Location)};");
                 }
                 String privateBinPath = sb.ToString();
                 AppDomain.CurrentDomain.SetData("PRIVATE_BINPATH", privateBinPath);
                 UpdateContextPropertyMethod.Invoke(null, new Object[] { FunsionHandle, "PRIVATE_BINPATH", privateBinPath });
-                foreach (XElement addinNode in validAddinNodes)
+                foreach (AddinInfo info in infos)
                 {
-                    temp = isService ? _loader.LoadService(addinNode) : _loader.LoadAddin(addinNode);
+                    temp =  _loader.LoadAddin(info);
                     if (temp == null) continue;
                     _messageService.Register(temp);
                     proxys.Add(temp);
                 }
             }
             return proxys;
-        }
-
-        [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private void UpdatePrivateBinPath(XElement addinNode, ref StringBuilder sb, ref Collection<XElement> validAddinNodes)
-        {
-            String location = addinNode.Attribute("location").Value;
-            if (Path.IsPathRooted(location)) return;
-            String addinConfigFile = Path.Combine(AddinConfigParser.AddinDirectory, location);
-            if (!File.Exists(addinConfigFile)) return;
-            addinNode.Attribute("location").Value = addinConfigFile;
-            AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
-            sb.Append($"addins/{Path.GetDirectoryName(location)};");
-            validAddinNodes.Add(addinNode);
         }
 
         #endregion

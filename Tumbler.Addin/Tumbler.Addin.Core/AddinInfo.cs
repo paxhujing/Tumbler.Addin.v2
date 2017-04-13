@@ -9,8 +9,17 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件信息。
     /// </summary>
-    public class AddinInfo
+    public class AddinInfo : IEquatable<AddinInfo>
     {
+        #region Fields
+
+        /// <summary>
+        /// 无效的插件。
+        /// </summary>
+        public static readonly AddinInfo Invalid = new AddinInfo();
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -23,6 +32,21 @@ namespace Tumbler.Addin.Core
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// 配置中的location值。
+        /// </summary>
+        public String Location { get; internal set; }
+
+        /// <summary>
+        /// 插件所在绝对路径。
+        /// </summary>
+        public String AbsolutePath => System.IO.Path.Combine(AddinConfigParser.AddinDirectory, Location);
+
+        /// <summary>
+        /// 插件所在目录。
+        /// </summary>
+        public String Directory => System.IO.Path.GetDirectoryName(AbsolutePath);
 
         /// <summary>
         /// Id。
@@ -69,6 +93,49 @@ namespace Tumbler.Addin.Core
         /// </summary>
         public String Description { get; internal set; }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// 获取对象的Hash值。
+        /// </summary>
+        /// <returns>对象的Hash值。</returns>
+        public override Int32 GetHashCode()
+        {
+            return (AbsolutePath ?? String.Empty).GetHashCode() ^ (Id ?? String.Empty).GetHashCode();
+        }
+
+        /// <summary>
+        /// 获取对象的字符串表示。
+        /// </summary>
+        /// <returns>对象的字符串表示。</returns>
+        public override String ToString()
+        {
+            return AbsolutePath;
+        }
+
+        /// <summary>
+        /// 判断两个对象是否相等。
+        /// </summary>
+        /// <param name="obj">另一个对象。</param>
+        /// <returns>如果相等则返回true；否则返回false。</returns>
+        public override Boolean Equals(object obj)
+        {
+            return Equals(obj as AddinInfo);
+        }
+
+        /// <summary>
+        /// 判断两个对象是否相等。
+        /// </summary>
+        /// <param name="other">另一个对象。</param>
+        /// <returns>如果相等则返回true；否则返回false。</returns>
+        public Boolean Equals(AddinInfo other)
+        {
+            if (other == null) return false;
+            if (Object.ReferenceEquals(other, this)) return true;
+            return other.GetHashCode() == this.GetHashCode();
+        }
 
         #endregion
     }

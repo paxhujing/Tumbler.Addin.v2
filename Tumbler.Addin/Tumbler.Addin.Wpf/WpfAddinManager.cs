@@ -76,7 +76,7 @@ namespace Tumbler.Addin.Wpf
         /// 获取插件加载器。
         /// </summary>
         /// <returns>插件加载器。</returns>
-        protected override Core.AddinLoader GetAddinLoader()
+        protected override Core.AddinLoader CreateAddinLoader()
         {
             _loader = new WpfAddinLoader();
             return _loader;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件配置解析器。
     /// </summary>
-    internal class AddinConfigParser
+    public class AddinConfigParser
     {
         #region Fields
 
@@ -40,6 +41,8 @@ namespace Tumbler.Addin.Core
 
         private const String AddinGroupSubNodeName = "sub";
 
+        private readonly XmlSchemaSet _addinXmlSchema;
+
         #endregion
 
         #region Constructors
@@ -63,6 +66,11 @@ namespace Tumbler.Addin.Core
             doc.Validate(schemaSet, ValidationEventHandler);
             _addinGroups = doc.Root.Element(addinGroupsNodeName);
             _services = doc.Root.Element(ServicesNodeName);
+
+            stream = GetAddinSchemaStream();
+            schemaXml = XmlReader.Create(stream);
+            _addinXmlSchema = new XmlSchemaSet();
+            _addinXmlSchema.Add(null, schemaXml);
         }
 
         #endregion
@@ -79,11 +87,12 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public AddinInfo GetAddinInfo(String location)
         {
-            String path = Path.Combine(AddinConfigParser.AddinDirectory, location);
-            if (!File.Exists(path)) return null;
-            XDocument doc = XDocument.Load(path);
+            String configFile = Path.Combine(AddinConfigParser.AddinDirectory, location);
+            XDocument doc = GetAddinConfigImpl(configFile);
+            if (doc == null) return null;
             AddinInfo info = new AddinInfo();
             XElement root = doc.Root;
+            info.Location = location;
             info.Id = root.Attribute("id")?.Value;
             info.Type = root.Attribute("type")?.Value;
             info.UpdateUrl = root.Attribute("updateUrl")?.Value;
@@ -103,13 +112,15 @@ namespace Tumbler.Addin.Core
         /// 获取插件组中的插件节点。
         /// </summary>
         /// <param name="groupName">组名称。</param>
-        /// <returns>插件节点。</returns>
+        /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<XElement> GetAddinNodes(String groupName)
+        public IEnumerable<AddinInfo> GetAddinNodes(String groupName)
         {
             XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x =>x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
-            return addinGroupNode.Elements(AddinNodeName);
+            IEnumerable<XElement> addinConfigs = addinGroupNode.Elements(AddinNodeName);
+            if (addinConfigs == null) return null;
+            return GetAddinInfos(addinConfigs);
         }
 
         /// <summary>
@@ -117,30 +128,90 @@ namespace Tumbler.Addin.Core
         /// </summary>
         /// <param name="groupName">组名称。</param>
         /// <param name="subName">子组名称。</param>
-        /// <returns>插件节点。</returns>
+        /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<XElement> GetSubAddinNodes(String groupName, String subName)
+        public IEnumerable<AddinInfo> GetSubAddinNodes(String groupName, String subName)
         {
             XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
             if (addinGroupNode == null) return null;
             XElement subNode = addinGroupNode.Elements(AddinGroupSubNodeName).FirstOrDefault(x => x.Attribute("name").Value == subName);
             if (subNode == null) return null;
-            return subNode.Elements(AddinNodeName);
+            IEnumerable<XElement> addinConfigs = subNode.Elements(AddinNodeName);
+            if (addinConfigs == null) return null;
+            return GetAddinInfos(addinConfigs);
         }
 
         /// <summary>
         /// 获取服务节点。
         /// </summary>
-        /// <returns>服务节点。</returns>
+        /// <returns>插件信息列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<XElement> GetServiceNodes()
+        public IEnumerable<AddinInfo> GetServiceNodes()
         {
-            return _services?.Elements(ServiceNodeName);
+            IEnumerable<XElement> addinConfigs = _services?.Elements(ServiceNodeName);
+            if (addinConfigs == null) return null;
+            return GetAddinInfos(addinConfigs);
+        }
+
+        #endregion
+
+        #region Protected
+
+        /// <summary>
+        /// 获取插件架构。
+        /// </summary>
+        /// <returns>插件架构。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected virtual Stream GetAddinSchemaStream()
+        {
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.AddinConfigSchema.xsd");
         }
 
         #endregion
 
         #region Private
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private IEnumerable<AddinInfo> GetAddinInfos(IEnumerable<XElement> addinConfigs)
+        {
+            AddinInfo temp = null;
+            Collection<AddinInfo> infos = new Collection<AddinInfo>();
+            foreach (XElement addinConfig in addinConfigs)
+            {
+                temp = GetAddinInfo(addinConfig.Attribute("location").Value);
+                if (temp == null) continue;
+                infos.Add(temp);
+            }
+            return infos;
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private XDocument GetAddinConfigImpl(String configFile)
+        {
+            if (!File.Exists(configFile)) return null;
+            try
+            {
+                XDocument config = XDocument.Load(configFile);
+                config.Validate(_addinXmlSchema, ValidationEventHandler);
+                return config;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
+            catch (XmlSchemaValidationException)
+            {
+                return null;
+            }
+        }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         private void ValidationEventHandler(Object sender, ValidationEventArgs e)
