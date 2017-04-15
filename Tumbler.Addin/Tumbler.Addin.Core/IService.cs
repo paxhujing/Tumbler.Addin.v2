@@ -12,6 +12,11 @@ namespace Tumbler.Addin.Core
     public interface IService : IAddin
     {
         /// <summary>
+        /// 是否正在运行中。
+        /// </summary>
+        Boolean IsRuning { get; }
+
+        /// <summary>
         /// 启动服务。
         /// </summary>
         /// <returns>成功返回true；否则返回false。</returns>
