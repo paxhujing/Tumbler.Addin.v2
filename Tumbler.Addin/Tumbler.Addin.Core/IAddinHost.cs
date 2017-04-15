@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 表示承载插件的宿主。
     /// </summary>
-    public interface IAddinHost : IMessagePoint
+    public interface IAddinHost : IAddin
     {
         /// <summary>
         /// 插件管理器。
@@ -21,11 +21,6 @@ namespace Tumbler.Addin.Core
         /// 日志记录器。
         /// </summary>
         ILog Logger { get; }
-
-        /// <summary>
-        /// 初始化。
-        /// </summary>
-        void Initialize();
 
         Boolean Install();
 

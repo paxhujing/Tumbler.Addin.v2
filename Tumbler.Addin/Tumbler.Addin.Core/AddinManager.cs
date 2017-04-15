@@ -38,6 +38,8 @@ namespace Tumbler.Addin.Core
 
         private static readonly Object FunsionHandle;
 
+        private readonly Collection<String> _privateBinPathCache = new Collection<String>();
+
         #endregion
 
         #region Constructors
@@ -78,6 +80,26 @@ namespace Tumbler.Addin.Core
         #region Methods
 
         #region Public
+
+        /// <summary>
+        /// 获取所有插件组的名称。
+        /// </summary>
+        /// <returns>插件组的名称列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<String> GetAddinGroupNames()
+        {
+            return _parser.GetAddinGroupNames();
+        }
+
+        /// <summary>
+        /// 获取插件组的所有子组名称。
+        /// </summary>
+        /// <returns>插件组的名称列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<String> GetSubNames(String groupName)
+        {
+            return _parser.GetSubNames(groupName);
+        }
 
         /// <summary>
         /// 获取插件信息。
@@ -127,7 +149,7 @@ namespace Tumbler.Addin.Core
         /// <param name="info">插件信息。</param>
         /// <returns>如果成功则不为null。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IMessageTarget LoadAddin(AddinInfo info)
+        public IAddin LoadAddin(AddinInfo info)
         {
             return LoadAddinImpl(new AddinInfo[] { info }).FirstOrDefault();
         }
@@ -139,7 +161,7 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        public IEnumerable<IAddin> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             return LoadAddinImpl(GetAddinInfos(groupName, filter));
         }
@@ -152,7 +174,7 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        public IEnumerable<IAddin> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             return LoadAddinImpl(GetAddinInfos(groupName, subName, filter));
         }
@@ -163,7 +185,7 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的服务插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IMessageTarget> LoadServices(Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        public IEnumerable<IAddin> LoadServices(Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             IEnumerable<AddinInfo> infos = _parser.GetServiceInfos();
             if (filter != null) infos = filter(infos);
@@ -172,25 +194,25 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 卸载插件。
         /// </summary>
-        /// <param name="proxy">插件代理。</param>
+        /// <param name="addin">插件。</param>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public void Unload(AddinProxy proxy)
+        public void Unload(IAddin addin)
         {
-            if (proxy == null) return;
-            _messageService.Unregister(proxy.Id);
-            _loader.Unload(proxy);
+            if (addin == null) return;
+            _messageService.Unregister(addin.Id);
+            _loader.Unload(addin);
         }
 
         /// <summary>
         /// 卸载插件。
         /// </summary>
-        /// <param name="proxies">一组插件代理。</param>
+        /// <param name="addins">一组插件。</param>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public void Unload(IEnumerable<AddinProxy> proxies)
+        public void Unload(IEnumerable<IAddin> addins)
         {
-            foreach (AddinProxy proxy in proxies)
+            foreach (IAddin addin in addins)
             {
-                Unload(proxy);
+                Unload(addin);
             }
         }
 
@@ -249,35 +271,45 @@ namespace Tumbler.Addin.Core
             return new AddinConfigParser(globalConfigFile);
         }
 
+        /// <summary>
+        /// 添加程序私有目录。
+        /// </summary>
+        /// <param name="path">私有目录。</param>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected void AddPrivateBinPath(String path)
+        {
+            if (_privateBinPathCache.Contains(path)) return;
+            AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+            String privateBinPath = setup.PrivateBinPath + path + ";";
+            AppDomain.CurrentDomain.SetData("PRIVATE_BINPATH", privateBinPath);
+            UpdateContextPropertyMethod.Invoke(null, new Object[] { FunsionHandle, "PRIVATE_BINPATH", privateBinPath });
+            _privateBinPathCache.Add(path);
+        }
+
         #endregion
 
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IEnumerable<IMessageTarget> LoadAddinImpl(IEnumerable<AddinInfo> infos)
+        private IEnumerable<IAddin> LoadAddinImpl(IEnumerable<AddinInfo> infos)
         {
-            Collection<IMessageTarget> proxys = new Collection<IMessageTarget>();
+            Collection<IAddin> addins = new Collection<IAddin>();
             if (infos != null && infos.Count() != 0)
             {
-                IMessageTarget temp = null;
-                StringBuilder sb = new StringBuilder(AppDomain.CurrentDomain.SetupInformation.PrivateBinPath);
-                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                IAddin temp = null;
                 foreach (AddinInfo info in infos)
                 {
-                    sb.Append($"addins/{Path.GetDirectoryName(info.Location)};");
+                    AddPrivateBinPath($"addins/{Path.GetDirectoryName(info.Location)}");
                 }
-                String privateBinPath = sb.ToString();
-                AppDomain.CurrentDomain.SetData("PRIVATE_BINPATH", privateBinPath);
-                UpdateContextPropertyMethod.Invoke(null, new Object[] { FunsionHandle, "PRIVATE_BINPATH", privateBinPath });
                 foreach (AddinInfo info in infos)
                 {
                     temp =  _loader.LoadAddin(info);
                     if (temp == null) continue;
                     _messageService.Register(temp);
-                    proxys.Add(temp);
+                    addins.Add(temp);
                 }
             }
-            return proxys;
+            return addins;
         }
 
         #endregion

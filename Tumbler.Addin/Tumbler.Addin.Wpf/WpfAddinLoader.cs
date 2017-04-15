@@ -22,45 +22,33 @@ namespace Tumbler.Addin.Wpf
         #region Public
 
         /// <summary>
-        /// 获取插件的UI元素。
+        /// 获取插件的激活器。
         /// </summary>
-        /// <param name="proxy">插件代理。</param>
-        /// <returns>UI元素。</returns>
-        public FrameworkElement GetAddinUI(WpfAddinProxy proxy)
+        /// <param name="addinInfo">插件信息。</param>
+        /// <returns>插件激活器。</returns>
+        public AddinActivatorBase GetAddinActivator(WpfAddinInfo addinInfo)
         {
-            Type uiType = ParseType(proxy.UIType, proxy.Directory);
-            if (uiType == null) return null;
+            Type activatorType = ParseType(addinInfo.ActivatorType, addinInfo.Directory);
+            if (activatorType == null || activatorType.BaseType.AssemblyQualifiedName != typeof(AddinActivatorBase).AssemblyQualifiedName)
+            {
+                return null;
+            }
             try
             {
-                Assembly assembly = AppDomain.CurrentDomain.Load(uiType.Assembly.FullName);
-                FrameworkElement ui = assembly.CreateInstance(uiType.FullName) as FrameworkElement;
-                if (ui != null)
-                {
-                    InternalMessageListener listener = new InternalMessageListener(proxy);
-                    proxy.Listener = listener;
-                    ui.Tag = listener;
+                Assembly assembly = AppDomain.CurrentDomain.Load(activatorType.Assembly.FullName);
+                AddinActivatorBase activator = (AddinActivatorBase)assembly.CreateInstance(activatorType.FullName);
 #if DEBUG
-                    Console.WriteLine($"Created addin {proxy.Id} ui elemtnt");
-#endif
+                if (activator != null)
+                {
+                    Console.WriteLine($"Created activator {activatorType.Assembly.FullName}");
                 }
-                return ui;
+#endif
+                return activator;
             }
             catch (MissingMemberException ex)
             {
                 return null;
             }
-        }
-
-        /// <summary>
-        /// 卸载有UI的插件。
-        /// </summary>
-        /// <param name="ui">UI元素。</param>
-        public void Unload(FrameworkElement ui)
-        {
-            InternalMessageListener listener = ui.Tag as InternalMessageListener;
-            if (listener == null) return;
-            ui.Tag = null;
-            base.Unload(listener.Proxy);
         }
 
         #endregion
@@ -73,7 +61,7 @@ namespace Tumbler.Addin.Wpf
         /// <param name="addinType">实现了 IAddin 接口的类型。</param>
         /// <param name="info">插件配置信息。</param>
         /// <returns>派生自 AddinProxy 类的实例。</returns>
-        protected override IMessageTarget LoadOnIsolatedAppDomain(Type addinType, AddinInfo info)
+        protected override IAddin LoadOnIsolatedAppDomain(Type addinType, AddinInfo info)
         {
             AddinProxy proxy = base.LoadOnIsolatedAppDomain(addinType, info) as AddinProxy;
             if (proxy != null)

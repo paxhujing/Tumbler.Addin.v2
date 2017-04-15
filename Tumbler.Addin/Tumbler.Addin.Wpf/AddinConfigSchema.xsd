@@ -8,6 +8,7 @@
       </xs:all>
       <xs:attribute name="id" type="notEmptyStringType" use="required"/>
       <xs:attribute name="type" type="notEmptyStringType" use="required"/>
+      <xs:attribute name="activatorType" type="notEmptyStringType" use="required"/>
       <xs:attribute name="version" type="notEmptyStringType" use="optional" default="1.0"/>
       <xs:attribute name="updateUrl" type="xs:string" use="optional"/>
     </xs:complexType>

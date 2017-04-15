@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Wpf
     /// <summary>
     /// WPF插件基类。
     /// </summary>
-    public class WpfAddinBase : AddinBase, IWpfAddin
+    public abstract class WpfAddinBase : AddinBase, IWpfAddin
     {
         #region Constructors
 

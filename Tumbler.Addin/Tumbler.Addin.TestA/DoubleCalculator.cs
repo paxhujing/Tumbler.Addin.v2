@@ -45,12 +45,17 @@ namespace Tumbler.Addin.TestA
         }
 
 
-        public void Load()
+        public void Initialize()
         {
         }
 
-        public void Unload()
+        public void Destroy()
         {
+        }
+
+        public Boolean Launch(object arg)
+        {
+            return true;
         }
     }
 }

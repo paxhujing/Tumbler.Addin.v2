@@ -4,13 +4,14 @@ using System.Linq;
 using System.Runtime.Remoting.Lifetime;
 using System.Text;
 using System.Threading.Tasks;
+using Tumbler.Addin.Core;
 
 namespace Tumbler.Addin.Wpf
 {
     /// <summary>
-    /// 内部事件侦听器。
+    /// 内部消息收发器。
     /// </summary>
-    public sealed class InternalMessageListener : MarshalByRefObject
+    public sealed class InternalMessageTransceiver : MarshalByRefObject
     {
         #region Event
 
@@ -26,7 +27,8 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 初始化类型 Tumbler.Addin.Wpf.InternalMessageListner 实例。
         /// </summary>
-        internal InternalMessageListener(WpfAddinProxy proxy)
+        /// <param name="proxy">插件代理。</param>
+        public InternalMessageTransceiver(WpfAddinProxy proxy)
         {
             Proxy = proxy;
         }

@@ -72,5 +72,9 @@ namespace Tumbler.Addin.Wpf.Test
             //e.Handled = true;
             //MessageBox.Show(e.Exception.Message);
         }
+
+        public void Destroy()
+        {
+        }
     }
 }

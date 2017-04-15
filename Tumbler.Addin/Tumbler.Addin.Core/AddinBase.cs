@@ -9,7 +9,7 @@ namespace Tumbler.Addin.Core
     /// <summary>
     /// 插件基类。
     /// </summary>
-    public class AddinBase : IAddin
+    public abstract class AddinBase : IAddin
     {
         #region Constructors
 
@@ -44,7 +44,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 当插件实例被创建时调用该方法。
         /// </summary>
-        public virtual void Load()
+        public virtual void Initialize()
         {
         }
 
@@ -59,7 +59,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 当插件实例被卸载时调用该方法。
         /// </summary>
-        public virtual void Unload()
+        public virtual void Destroy()
         {
         }
 

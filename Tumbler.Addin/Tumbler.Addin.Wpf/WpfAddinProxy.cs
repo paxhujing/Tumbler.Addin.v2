@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Wpf
     /// <summary>
     /// 插件代理。用于插件与宿主之间的通信。
     /// </summary>
-    public class WpfAddinProxy : AddinProxy
+    public class WpfAddinProxy : AddinProxy,IWpfAddin
     {
         #region Constructors
 
@@ -18,12 +18,9 @@ namespace Tumbler.Addin.Wpf
         /// 初始化类型 Tumbler.Addin.Wpf.AddinProxy 实例。
         /// </summary>
         /// <param name="target">插件。</param>
-        /// <param name="uiType">UI元素的类型限定名。</param>
-        protected WpfAddinProxy(IWpfAddin target, String uiType)
+        protected WpfAddinProxy(IWpfAddin target)
             : base(target)
         {
-            if (String.IsNullOrWhiteSpace(uiType)) throw new ArgumentNullException("uiType");
-            UIType = uiType;
         }
 
         #endregion
@@ -36,14 +33,9 @@ namespace Tumbler.Addin.Wpf
         internal String Directory { get; set; }
 
         /// <summary>
-        /// UI元素的类型限定名。
+        /// 内部消息收发器。
         /// </summary>
-        public String UIType { get; }
-
-        /// <summary>
-        /// 内部事件侦听器。
-        /// </summary>
-        internal InternalMessageListener Listener { get; set; }
+        internal InternalMessageTransceiver Transceiver { get; set; }
 
         #endregion
 
@@ -72,7 +64,7 @@ namespace Tumbler.Addin.Wpf
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         internal void OnSendInternalMessage(InternalMessage message)
         {
-            Listener?.TransmitInternalMessage(message);
+            Transceiver?.TransmitInternalMessage(message);
         }
 
         #endregion

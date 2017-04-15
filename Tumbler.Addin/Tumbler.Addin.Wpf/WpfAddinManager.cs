@@ -11,7 +11,7 @@ namespace Tumbler.Addin.Wpf
     /// <summary>
     /// 插件管理器。
     /// </summary>
-    public class WpfAddinManager : Core.AddinManager
+    public class WpfAddinManager : AddinManager
     {
         #region Fields
 
@@ -38,34 +38,21 @@ namespace Tumbler.Addin.Wpf
         #region Public
 
         /// <summary>
-        /// 获取插件的UI元素。
+        /// 获取插件的激活器。
         /// </summary>
-        /// <param name="proxy">插件代理。</param>
-        /// <returns>UI元素。</returns>
-        public FrameworkElement GetAddinUI(WpfAddinProxy proxy)
+        /// <param name="info">插件信息。</param>
+        /// <returns>插件激活器。</returns>
+        public AddinActivatorBase GetAddinActivator(WpfAddinInfo info)
         {
-            return _loader.GetAddinUI(proxy);
-        }
-
-        /// <summary>
-        /// 卸载有UI的插件。
-        /// </summary>
-        /// <param name="ui">UI元素。</param>
-        public void Unload(FrameworkElement ui)
-        {
-            _loader.Unload(ui);
-        }
-
-        /// <summary>
-        /// 卸载有UI的插件。
-        /// </summary>
-        /// <param name="uis">一组UI元素。</param>
-        public void Unload(IEnumerable<FrameworkElement> uis)
-        {
-            foreach (FrameworkElement ui in uis)
+            String privateBinPath = $"addins/{System.IO.Path.GetDirectoryName(info.Location)}";
+            AddPrivateBinPath(privateBinPath);
+            AddinActivatorBase activator = _loader.GetAddinActivator(info);
+            if (activator != null)
             {
-                _loader.Unload(ui);
+                activator._info = info;
+                activator._addinManager = this;
             }
+            return activator;
         }
 
         #endregion
@@ -73,10 +60,20 @@ namespace Tumbler.Addin.Wpf
         #region Protected
 
         /// <summary>
-        /// 获取插件加载器。
+        /// 创建插件解析器。
+        /// </summary>
+        /// <param name="globalConfigFile">插件全局配置文件。</param>
+        /// <returns>插件解析器。</returns>
+        protected override AddinConfigParser CreateAddinConfigParser(String globalConfigFile)
+        {
+            return new WpfAddinConfigParser(globalConfigFile);
+        }
+
+        /// <summary>
+        /// 创建插件加载器。
         /// </summary>
         /// <returns>插件加载器。</returns>
-        protected override Core.AddinLoader CreateAddinLoader()
+        protected override AddinLoader CreateAddinLoader()
         {
             _loader = new WpfAddinLoader();
             return _loader;

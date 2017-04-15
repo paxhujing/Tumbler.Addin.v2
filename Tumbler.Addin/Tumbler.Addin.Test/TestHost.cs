@@ -59,5 +59,9 @@ namespace Tumbler.Addin.Test
         {
             throw new NotImplementedException();
         }
+
+        public void Destroy()
+        {
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Wpf.TestA.Back
     public class TestAAddinProxy : WpfAddinProxy
     {
         public TestAAddinProxy()
-            : base(new TestAAddin(), "Tumbler.Addin.Wpf.TestA.Counter,Tumbler.Addin.Wpf.TestA")
+            : base(new TestAAddin())
         {
         }
     }

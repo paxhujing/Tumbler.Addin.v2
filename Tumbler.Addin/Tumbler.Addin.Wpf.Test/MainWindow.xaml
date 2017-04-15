@@ -5,9 +5,151 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tumbler.Addin.Wpf.Test"
         mc:Ignorable="d"
+        x:Name="Root"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow"
+        Height="350"
+        Width="525">
+    <Window.Resources>
+        <Style x:Key="Menu.Group.Item"
+               TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <ToggleButton Content="{Binding Name}"
+                                      Height="50"
+                                      Width="110" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Menu.Group"
+               TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Width="110"
+                              Height="50">
+                            <ToggleButton x:Name="MenuGroup"
+                                          Content="{Binding GroupName}" />
+                            <Popup IsOpen="{Binding IsChecked,ElementName=MenuGroup,Mode=TwoWay}"
+                                   StaysOpen="False"
+                                   AllowsTransparency="True"
+                                   PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}">
+                                <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ListBox ItemsSource="{Binding Items}"
+                                             ItemContainerStyle="{StaticResource Menu.Group.Item}" />
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Menu.More.Group"
+               TargetType="{x:Type GroupItem}">
+            <Setter Property="Margin"
+                    Value="15,5,0,5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"
+                                                  MaxWidth="60" />
+                                <ColumnDefinition Width="30" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Name}"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Top"
+                                       ToolTip="{Binding Name}" />
+                            <ListBox ItemsSource="{Binding Items}"
+                                     Grid.Column="2"
+                                     BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListBoxItem}">
+                                        <Setter Property="Margin"
+                                                Value="0,0,20,10" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                    <ToggleButton Content="{Binding Item.Name}" />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"
+                                                   IsItemsHost="True" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Menu.Group.Container"
+               TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Width="110"
+                              Height="50">
+                            <ToggleButton x:Name="MenuGroup"
+                                          Content="{Binding GroupName}" />
+                            <Popup IsOpen="{Binding IsChecked,ElementName=MenuGroup,Mode=TwoWay}"
+                                   StaysOpen="False"
+                                   AllowsTransparency="True"
+                                   Placement="Bottom"
+                                   PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}">
+                                <Border Width="700"
+                                        Height="160">
+                                    <ListBox ItemsSource="{Binding Items}"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Item.Name}" />
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                        <ListBox.GroupStyle>
+                                            <GroupStyle ContainerStyle="{StaticResource Menu.More.Group}" />
+                                        </ListBox.GroupStyle>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <local:MenuItemContainerStyleSelector x:Key="MenuItemContainerStyleSelector"
+                                              NormalStyle="{StaticResource Menu.Group}"
+                                              ContainerStyle="{StaticResource Menu.Group.Container}" />
+
+    </Window.Resources>
     <Grid>
-        
+        <ListBox VerticalAlignment="Top"
+                 HorizontalAlignment="Center"
+                 ItemsSource="{Binding AddinInfos,ElementName=Root}"
+                 ItemContainerStyleSelector="{StaticResource MenuItemContainerStyleSelector}"
+                 ButtonBase.Click="ListBox_Click">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+        <StackPanel x:Name="Addins"/>
     </Grid>
 </Window>

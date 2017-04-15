@@ -44,25 +44,27 @@ namespace Tumbler.Addin.Core
         /// <param name="addinInfo">插件信息。</param>
         /// <returns>插件代理。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IMessageTarget LoadAddin(AddinInfo addinInfo)
+        public IAddin LoadAddin(AddinInfo addinInfo)
         {
             if (addinInfo == null || addinInfo == AddinInfo.Invalid) return null;
             return LoadImpl(addinInfo);
         }
 
         /// <summary>
-        /// 卸载代理
+        /// 卸载插件。
         /// </summary>
-        /// <param name="addinProxy"></param>
+        /// <param name="addin">插件。</param>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public void Unload(AddinProxy addinProxy)
+        public void Unload(IAddin addin)
         {
-            if (addinProxy == null) throw new ArgumentNullException("addinProxy");
+            if (addin == null) throw new ArgumentNullException("addin");
+            addin.Destroy();
 #if DEBUG
-            Console.WriteLine($"Destroy addin {addinProxy.Id} and owner {addinProxy.Owner.FriendlyName}");
+            Console.WriteLine($"Destroy addin {addin.Id}");
 #endif
-            addinProxy.Unload();
-            AppDomain.Unload(addinProxy.Owner);
+            AddinProxy proxy = addin as AddinProxy;
+            if (proxy == null) return;
+            AppDomain.Unload(proxy.Owner);
         }
 
         #endregion
@@ -76,7 +78,7 @@ namespace Tumbler.Addin.Core
         /// <param name="info">插件信息。</param>
         /// <returns>派生自 AddinProxy 类的实例。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual IMessageTarget LoadOnIsolatedAppDomain(Type addinType, AddinInfo info)
+        protected virtual IAddin LoadOnIsolatedAppDomain(Type addinType, AddinInfo info)
         {
             String id = info.Id;
             AppDomainSetup setup = new AppDomainSetup();
@@ -90,7 +92,7 @@ namespace Tumbler.Addin.Core
                 domain.SetData("proxy", proxy);
                 domain.SetData("id", id);
                 proxy.Owner = domain;
-                proxy.Load();
+                proxy.Initialize();
 #if DEBUG
                 Console.WriteLine($"Created isolated addin {proxy.Id} in {domain.FriendlyName}");
 #endif
@@ -110,17 +112,17 @@ namespace Tumbler.Addin.Core
         /// <param name="info">插件信息。</param>
         /// <returns>实现了 IAddin 接口的类型。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        protected virtual IMessageTarget LoadOnDefaultAppDomain(Type addinType, AddinInfo info)
+        protected virtual IAddin LoadOnDefaultAppDomain(Type addinType, AddinInfo info)
         {
             try
             {
                 String id = info.Id;
                 Assembly assembly = AppDomain.CurrentDomain.Load(addinType.Assembly.FullName);
-                IAddin addin = assembly.CreateInstance(addinType.FullName) as IAddin;
+                IAddin addin = (IAddin)assembly.CreateInstance(addinType.FullName);
                 if (addin != null)
                 {
                     if (addin.Id != id) return null;
-                    addin.Load();
+                    addin.Initialize();
 #if DEBUG
                     Console.WriteLine($"Created addin {addin.Id} in default appdomain");
 #endif
@@ -163,10 +165,10 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IMessageTarget LoadImpl(AddinInfo info)
+        private IAddin LoadImpl(AddinInfo info)
         {
             Type addinType = ParseType(info.Type, info.Directory);
-            if (addinType == null) return null;
+            if (addinType == null || addinType.GetInterface(typeof(IAddin).FullName) == null) return null;
             Boolean needProxy = addinType.GetCustomAttributesData().SingleOrDefault(x =>
                 x.AttributeType.AssemblyQualifiedName == typeof(AddinProxyAttribute).AssemblyQualifiedName) != null;
             if (needProxy)

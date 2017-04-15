@@ -80,6 +80,28 @@ namespace Tumbler.Addin.Core
         #region Public
 
         /// <summary>
+        /// 获取所有插件组的名称。
+        /// </summary>
+        /// <returns>插件组的名称列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<String> GetAddinGroupNames()
+        {
+            return _addinGroups?.Elements("addinGroup")?.Select(x => x.Attribute("name").Value) ?? new String[0];
+        }
+
+        /// <summary>
+        /// 获取插件组的所有子组名称。
+        /// </summary>
+        /// <returns>插件组的名称列表。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IEnumerable<String> GetSubNames(String groupName)
+        {
+            XElement addinGroupNode = _addinGroups?.Elements().FirstOrDefault(x => x.Attribute("name").Value == groupName);
+            if (addinGroupNode == null) return null;
+            return addinGroupNode.Elements("sub")?.Select(x => x.Attribute("name").Value) ?? new String[0];
+        }
+
+        /// <summary>
         /// 获取插件信息。
         /// </summary>
         /// <param name="location">插件配置路径。</param>
@@ -90,22 +112,7 @@ namespace Tumbler.Addin.Core
             String configFile = Path.Combine(AddinConfigParser.AddinDirectory, location);
             XDocument doc = GetAddinConfigImpl(configFile);
             if (doc == null) return null;
-            AddinInfo info = new AddinInfo();
-            XElement root = doc.Root;
-            info.Location = location;
-            info.Id = root.Attribute("id")?.Value;
-            info.Type = root.Attribute("type")?.Value;
-            info.UpdateUrl = root.Attribute("updateUrl")?.Value;
-            XElement infoElement = root.Element("info");
-            if (infoElement != null)
-            {
-                info.Name = infoElement.Attribute("name")?.Value;
-                info.Author = infoElement.Attribute("author")?.Value;
-                info.Copyright = infoElement.Attribute("copyright")?.Value;
-                info.Url = infoElement.Attribute("url")?.Value;
-                info.Description = infoElement.Attribute("description")?.Value;
-            }
-            return info;
+            return GetAddinInfoImpl(doc.Root, location);
         }
 
         /// <summary>
@@ -165,6 +172,18 @@ namespace Tumbler.Addin.Core
         protected virtual Stream GetAddinSchemaStream()
         {
             return Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.AddinConfigSchema.xsd");
+        }
+
+        /// <summary>
+        /// 获取插件信息。
+        /// </summary>
+        /// <param name="root">插件配置。</param>
+        /// <param name="location">配置文件相对路径。</param>
+        /// <returns>插件信息。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected virtual AddinInfo GetAddinInfoImpl(XElement root,String location)
+        {
+            return new AddinInfo(root, location);
         }
 
         #endregion

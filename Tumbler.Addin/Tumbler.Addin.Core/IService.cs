@@ -12,7 +12,7 @@ namespace Tumbler.Addin.Core
     public interface IService : IAddin
     {
         /// <summary>
-        /// 开始。
+        /// 启动服务。
         /// </summary>
         /// <returns>成功返回true；否则返回false。</returns>
         Boolean Start();
