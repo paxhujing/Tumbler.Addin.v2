@@ -45,8 +45,6 @@ namespace Tumbler.Addin.Wpf
 
         internal WpfAddinInfo _info;
 
-        private IWpfAddin _addin;
-
         #endregion
 
         #region Constructors
@@ -71,12 +69,17 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 内部消息收发器。
         /// </summary>
-        public InternalMessageTransceiver Transceiver => (_addin as WpfAddinProxy)?.Transceiver;
+        public InternalMessageTransceiver Transceiver => (Addin as WpfAddinProxy)?.Transceiver;
 
         /// <summary>
         /// 插件信息。
         /// </summary>
         public WpfAddinInfo Info => _info;
+
+        /// <summary>
+        /// 插件。
+        /// </summary>
+        protected IAddin Addin { get; private set; }
 
         /// <summary>
         /// 插件的视图。
@@ -91,7 +94,7 @@ namespace Tumbler.Addin.Wpf
             get
             {
                 if (!IsActived) throw new InvalidOperationException("The activator need be actived");
-                return _addin.Id;
+                return Addin.Id;
             }
         }
 
@@ -146,32 +149,24 @@ namespace Tumbler.Addin.Wpf
             IAddin addin = AddinManager.LoadAddin(_info);
             if (addin != null)
             {
-                IWpfAddin wpfAddin = addin as IWpfAddin;
-                if (wpfAddin == null)
+                FrameworkElement view = CreateView(addin);
+                if (view == null)
                 {
                     AddinManager.Unload(addin);
                 }
                 else
                 {
-                    FrameworkElement view = CreateView();
-                    if (view == null)
+                    view.Tag = this;
+                    View = view;
+                    Addin = addin;
+                    WpfAddinProxy proxy = addin as WpfAddinProxy;
+                    if (proxy != null)
                     {
-                        AddinManager.Unload(addin);
-                    }
-                    else
-                    {
-                        view.Tag = this;
-                        View = view;
-                        _addin = wpfAddin;
-                        WpfAddinProxy proxy = addin as WpfAddinProxy;
-                        if (proxy != null)
-                        {
-                            proxy.Transceiver = new InternalMessageTransceiver(proxy);
-                        }
+                        proxy.Transceiver = new InternalMessageTransceiver(proxy);
                     }
                 }
             }
-            IsActived = _addin != null;
+            IsActived = addin != null;
         }
 
         /// <summary>
@@ -180,7 +175,7 @@ namespace Tumbler.Addin.Wpf
         public void Launch()
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
-            IsLaunched = LaunchCore(_addin);
+            IsLaunched = LaunchCore();
         }
 
         /// <summary>
@@ -229,15 +224,15 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 创建插件的视图。
         /// </summary>
+        /// <param name="addin">插件。</param>
         /// <returns>插件的视图。</returns>
-        protected abstract FrameworkElement CreateView();
+        protected abstract FrameworkElement CreateView(IAddin addin);
 
         /// <summary>
         /// 启动插件。
         /// </summary>
-        /// <param name="addin">插件。</param>
         /// <returns>启动成功返回true，否则返回false。</returns>
-        protected abstract Boolean LaunchCore(IWpfAddin addin);
+        protected abstract Boolean LaunchCore();
 
         /// <summary>
         /// 关闭插件。

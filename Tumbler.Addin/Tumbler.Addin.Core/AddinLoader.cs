@@ -84,6 +84,15 @@ namespace Tumbler.Addin.Core
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationName = id;
             setup.ApplicationBase = Path.GetDirectoryName(addinType.Assembly.Location);
+            String selfConfigFile = addinType.Assembly.Location + ".config";
+            if (File.Exists(selfConfigFile))
+            {
+                setup.ConfigurationFile = selfConfigFile;
+            }
+            else
+            {
+                setup.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+            }
             AppDomain domain = AppDomain.CreateDomain($"AddinDomain#{id}", null, setup);
             try
             {

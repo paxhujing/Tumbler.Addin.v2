@@ -116,11 +116,6 @@
                                         Height="160">
                                     <ListBox ItemsSource="{Binding Items}"
                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Item.Name}" />
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
                                         <ListBox.GroupStyle>
                                             <GroupStyle ContainerStyle="{StaticResource Menu.More.Group}" />
                                         </ListBox.GroupStyle>

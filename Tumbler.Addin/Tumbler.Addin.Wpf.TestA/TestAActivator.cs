@@ -10,18 +10,18 @@ namespace Tumbler.Addin.Wpf.TestA
 {
     public class TestAActivator : AddinActivatorBase
     {
-        protected override bool LaunchCore(IWpfAddin addin)
+        protected override bool LaunchCore()
         {
             return true;
         }
 
-        protected override bool CloseCore(IWpfAddin addin)
+        protected override bool CloseCore()
         {
             return true;
         }
 
 
-        protected override FrameworkElement CreateView()
+        protected override FrameworkElement CreateView(IAddin addin)
         {
             return new Counter();
         }
