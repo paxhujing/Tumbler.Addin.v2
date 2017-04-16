@@ -134,6 +134,10 @@
 
     </Window.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <ListBox VerticalAlignment="Top"
                  HorizontalAlignment="Center"
                  ItemsSource="{Binding AddinInfos,ElementName=Root}"
@@ -145,6 +149,49 @@
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
         </ListBox>
-        <StackPanel x:Name="Addins"/>
+        <StackPanel x:Name="Addins" />
+
+        <DataGrid x:Name="Alarms"
+                  RowBackground="Transparent"
+                  Background="Transparent"
+                  Margin="14,18,14,18"
+                  HorizontalGridLinesBrush="#E60190cc"
+                  VerticalGridLinesBrush="#E60190cc"
+                  BorderThickness="1"
+                  BorderBrush="#E60190cc"
+                  HeadersVisibility="Column"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  Grid.Row="1">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background"
+                            Value="Green" />
+                    <Style.Triggers>
+                        <Trigger Property="AlternationIndex"
+                                 Value="1">
+                            <Setter Property="Background"
+                                    Value="Yellow" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="Red" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="时间"
+                                    Binding="{Binding Timestamp}" />
+                <DataGridTextColumn Header="位置"
+                                    Binding="{Binding Location}" />
+                <DataGridTextColumn Header="类型"
+                                    Binding="{Binding Type}" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

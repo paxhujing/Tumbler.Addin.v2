@@ -26,7 +26,28 @@ namespace Tumbler.Addin.Wpf.Test
     {
         public MainWindow()
         {
-            InitializeComponent(); 
+            InitializeComponent();
+            Alarms.ItemsSource = new Object[]
+      {
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+                new { Timestamp=DateTime.Now,Location="ADFAFAF",Type="dsfafaf"},
+      };
         }
 
         public ObservableCollection<ItemsGroup> AddinInfos { get; } = new ObservableCollection<ItemsGroup>();

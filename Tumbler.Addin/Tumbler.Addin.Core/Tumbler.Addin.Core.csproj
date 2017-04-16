@@ -67,12 +67,19 @@
     <Compile Include="MessageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBase.cs" />
+    <Compile Include="ServiceProxy.cs" />
+    <Compile Include="ServiceProxyAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AddinConfigSchema.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="AddinGlobalConfigSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ServiceConfigSchema.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

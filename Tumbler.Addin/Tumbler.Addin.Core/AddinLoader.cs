@@ -47,7 +47,19 @@ namespace Tumbler.Addin.Core
         public IAddin LoadAddin(AddinInfo addinInfo)
         {
             if (addinInfo == null || addinInfo == AddinInfo.Invalid) return null;
-            return LoadImpl(addinInfo);
+            return LoadAddinImpl(addinInfo);
+        }
+
+        /// <summary>
+        ///加载服务。
+        /// </summary>
+        /// <param name="addinInfo">插件信息。</param>
+        /// <returns>服务代理。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        public IService LoadService(AddinInfo addinInfo)
+        {
+            if (addinInfo == null || addinInfo == AddinInfo.Invalid) return null;
+            return LoadServiceImpl(addinInfo);
         }
 
         /// <summary>
@@ -174,7 +186,24 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IAddin LoadImpl(AddinInfo info)
+        private IService LoadServiceImpl(AddinInfo info)
+        {
+            Type addinType = ParseType(info.Type, info.Directory);
+            if (addinType == null || addinType.GetInterface(typeof(IService).FullName) == null) return null;
+            Boolean needProxy = addinType.GetCustomAttributesData().SingleOrDefault(x =>
+                x.AttributeType.AssemblyQualifiedName == typeof(ServiceProxyAttribute).AssemblyQualifiedName) != null;
+            if (needProxy)
+            {
+                return (IService)LoadOnIsolatedAppDomain(addinType, info);
+            }
+            else
+            {
+                return (IService)LoadOnDefaultAppDomain(addinType, info);
+            }
+        }
+
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        private IAddin LoadAddinImpl(AddinInfo info)
         {
             Type addinType = ParseType(info.Type, info.Directory);
             if (addinType == null || addinType.GetInterface(typeof(IAddin).FullName) == null) return null;
@@ -203,6 +232,7 @@ namespace Tumbler.Addin.Core
             String file = Path.Combine(directory, an.Name + ".dll");
             return Assembly.ReflectionOnlyLoadFrom(file);
         }
+
 
         #endregion
 

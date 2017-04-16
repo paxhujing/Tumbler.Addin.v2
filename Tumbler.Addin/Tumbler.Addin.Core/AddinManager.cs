@@ -109,7 +109,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public AddinInfo GetAddinInfo(String location)
         {
-            return _parser.GetAddinInfo(location);
+            return _parser.GetAddinInfo(location, false);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IAddin LoadAddin(AddinInfo info)
         {
-            return LoadAddinImpl(new AddinInfo[] { info }).FirstOrDefault();
+            return LoadAddinImpl(new AddinInfo[] { info }, false).FirstOrDefault();
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<IAddin> LoadAddins(String groupName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
-            return LoadAddinImpl(GetAddinInfos(groupName, filter));
+            return LoadAddinImpl(GetAddinInfos(groupName, filter), false);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Tumbler.Addin.Core
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         public IEnumerable<IAddin> LoadAddins(String groupName, String subName, Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
-            return LoadAddinImpl(GetAddinInfos(groupName, subName, filter));
+            return LoadAddinImpl(GetAddinInfos(groupName, subName, filter), false);
         }
 
         /// <summary>
@@ -185,11 +185,11 @@ namespace Tumbler.Addin.Core
         /// <param name="filter">过滤器。用于筛选出需要加载的插件。</param>
         /// <returns>加载成功的服务插件列表。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public IEnumerable<IAddin> LoadServices(Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
+        public IEnumerable<IService> LoadServices(Func<IEnumerable<AddinInfo>, IEnumerable<AddinInfo>> filter = null)
         {
             IEnumerable<AddinInfo> infos = _parser.GetServiceInfos();
             if (filter != null) infos = filter(infos);
-            return LoadAddinImpl(infos);
+            return LoadAddinImpl(infos, true)?.Cast<IService>();
         }
         /// <summary>
         /// 卸载插件。
@@ -291,7 +291,7 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IEnumerable<IAddin> LoadAddinImpl(IEnumerable<AddinInfo> infos)
+        private IEnumerable<IAddin> LoadAddinImpl(IEnumerable<AddinInfo> infos, Boolean isService)
         {
             Collection<IAddin> addins = new Collection<IAddin>();
             if (infos != null && infos.Count() != 0)
@@ -303,7 +303,7 @@ namespace Tumbler.Addin.Core
                 }
                 foreach (AddinInfo info in infos)
                 {
-                    temp =  _loader.LoadAddin(info);
+                    temp = isService ? _loader.LoadService(info) : _loader.LoadAddin(info);
                     if (temp == null) continue;
                     _messageService.Register(temp);
                     addins.Add(temp);

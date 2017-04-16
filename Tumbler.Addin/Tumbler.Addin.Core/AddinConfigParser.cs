@@ -43,6 +43,8 @@ namespace Tumbler.Addin.Core
 
         private readonly XmlSchemaSet _addinXmlSchema;
 
+        private readonly XmlSchemaSet _serviceXmlSchema;
+
         #endregion
 
         #region Constructors
@@ -71,6 +73,11 @@ namespace Tumbler.Addin.Core
             schemaXml = XmlReader.Create(stream);
             _addinXmlSchema = new XmlSchemaSet();
             _addinXmlSchema.Add(null, schemaXml);
+
+            stream = GetServiceSchemaStream();
+            schemaXml = XmlReader.Create(stream);
+            _serviceXmlSchema = new XmlSchemaSet();
+            _serviceXmlSchema.Add(null, schemaXml);
         }
 
         #endregion
@@ -105,12 +112,13 @@ namespace Tumbler.Addin.Core
         /// 获取插件信息。
         /// </summary>
         /// <param name="location">插件配置路径。</param>
+        /// <param name="isService">是否是服务。</param>
         /// <returns>插件信息。</returns>
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        public AddinInfo GetAddinInfo(String location)
+        public AddinInfo GetAddinInfo(String location,Boolean isService)
         {
             String configFile = Path.Combine(AddinConfigParser.AddinDirectory, location);
-            XDocument doc = GetAddinConfigImpl(configFile);
+            XDocument doc = GetAddinConfigImpl(configFile, isService);
             if (doc == null) return null;
             return GetAddinInfoImpl(doc.Root, location);
         }
@@ -127,7 +135,7 @@ namespace Tumbler.Addin.Core
             if (addinGroupNode == null) return null;
             IEnumerable<XElement> addinConfigs = addinGroupNode.Elements(AddinNodeName);
             if (addinConfigs == null) return null;
-            return GetAddinInfos(addinConfigs);
+            return GetAddinInfos(addinConfigs, false);
         }
 
         /// <summary>
@@ -145,7 +153,7 @@ namespace Tumbler.Addin.Core
             if (subNode == null) return null;
             IEnumerable<XElement> addinConfigs = subNode.Elements(AddinNodeName);
             if (addinConfigs == null) return null;
-            return GetAddinInfos(addinConfigs);
+            return GetAddinInfos(addinConfigs, false);
         }
 
         /// <summary>
@@ -157,7 +165,7 @@ namespace Tumbler.Addin.Core
         {
             IEnumerable<XElement> addinConfigs = _services?.Elements(ServiceNodeName);
             if (addinConfigs == null) return null;
-            return GetAddinInfos(addinConfigs);
+            return GetAddinInfos(addinConfigs, true);
         }
 
         #endregion
@@ -172,6 +180,16 @@ namespace Tumbler.Addin.Core
         protected virtual Stream GetAddinSchemaStream()
         {
             return Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.AddinConfigSchema.xsd");
+        }
+
+        /// <summary>
+        /// 获取服务架构。
+        /// </summary>
+        /// <returns>服务架构。</returns>
+        [LoaderOptimization(LoaderOptimization.MultiDomain)]
+        protected virtual Stream GetServiceSchemaStream()
+        {
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream("Tumbler.Addin.Core.ServiceConfigSchema.xsd");
         }
 
         /// <summary>
@@ -191,13 +209,13 @@ namespace Tumbler.Addin.Core
         #region Private
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private IEnumerable<AddinInfo> GetAddinInfos(IEnumerable<XElement> addinConfigs)
+        private IEnumerable<AddinInfo> GetAddinInfos(IEnumerable<XElement> addinConfigs,Boolean isService)
         {
             AddinInfo temp = null;
             Collection<AddinInfo> infos = new Collection<AddinInfo>();
             foreach (XElement addinConfig in addinConfigs)
             {
-                temp = GetAddinInfo(addinConfig.Attribute("location").Value);
+                temp = GetAddinInfo(addinConfig.Attribute("location").Value, isService);
                 if (temp == null) continue;
                 infos.Add(temp);
             }
@@ -205,13 +223,20 @@ namespace Tumbler.Addin.Core
         }
 
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
-        private XDocument GetAddinConfigImpl(String configFile)
+        private XDocument GetAddinConfigImpl(String configFile,Boolean isService)
         {
             if (!File.Exists(configFile)) return null;
             try
             {
                 XDocument config = XDocument.Load(configFile);
-                config.Validate(_addinXmlSchema, ValidationEventHandler);
+                if (isService)
+                {
+                    config.Validate(_serviceXmlSchema, ValidationEventHandler);
+                }
+                else
+                {
+                    config.Validate(_addinXmlSchema, ValidationEventHandler);
+                }
                 return config;
             }
             catch (ArgumentException)
