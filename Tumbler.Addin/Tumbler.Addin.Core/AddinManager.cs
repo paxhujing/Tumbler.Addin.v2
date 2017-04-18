@@ -201,6 +201,7 @@ namespace Tumbler.Addin.Core
             if (addin == null) return;
             _messageService.Unregister(addin.Id);
             _loader.Unload(addin);
+            addin.Destroy();
         }
 
         /// <summary>
@@ -307,6 +308,7 @@ namespace Tumbler.Addin.Core
                     if (temp == null) continue;
                     _messageService.Register(temp);
                     addins.Add(temp);
+                    temp.Initialize();
                 }
             }
             return addins;

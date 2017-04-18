@@ -150,20 +150,16 @@ namespace Tumbler.Addin.Wpf
             if (addin != null)
             {
                 FrameworkElement view = CreateView(addin);
-                if (view == null)
-                {
-                    AddinManager.Unload(addin);
-                }
-                else
+                if (view != null)
                 {
                     view.Tag = this;
                     View = view;
-                    Addin = addin;
-                    WpfAddinProxy proxy = addin as WpfAddinProxy;
-                    if (proxy != null)
-                    {
-                        proxy.Transceiver = new InternalMessageTransceiver(proxy);
-                    }
+                }
+                Addin = addin;
+                WpfAddinProxy proxy = addin as WpfAddinProxy;
+                if (proxy != null)
+                {
+                    proxy.Transceiver = new InternalMessageTransceiver(proxy);
                 }
             }
             IsActived = addin != null;

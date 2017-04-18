@@ -280,7 +280,7 @@ namespace Tumbler.Addin.Core
                         && !(content is MarshalByRefObject)
                         && !(content is ValueType))
                     {
-                        throw new ArgumentException("Content is not ISerializable or MarshalByRefObject");
+                        throw new ArgumentException("Content is not ValueType , ISerializable or MarshalByRefObject");
                     }
                     break;
                 case ContentType.Object:

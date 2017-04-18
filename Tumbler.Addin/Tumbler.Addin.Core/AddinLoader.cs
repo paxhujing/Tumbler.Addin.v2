@@ -70,7 +70,6 @@ namespace Tumbler.Addin.Core
         public void Unload(IAddin addin)
         {
             if (addin == null) throw new ArgumentNullException("addin");
-            addin.Destroy();
 #if DEBUG
             Console.WriteLine($"Destroy addin {addin.Id}");
 #endif
@@ -113,7 +112,6 @@ namespace Tumbler.Addin.Core
                 domain.SetData("proxy", proxy);
                 domain.SetData("id", id);
                 proxy.Owner = domain;
-                proxy.Initialize();
 #if DEBUG
                 Console.WriteLine($"Created isolated addin {proxy.Id} in {domain.FriendlyName}");
 #endif
@@ -143,7 +141,6 @@ namespace Tumbler.Addin.Core
                 if (addin != null)
                 {
                     if (addin.Id != id) return null;
-                    addin.Initialize();
 #if DEBUG
                     Console.WriteLine($"Created addin {addin.Id} in default appdomain");
 #endif
