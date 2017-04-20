@@ -37,6 +37,86 @@ namespace Tumbler.Addin.Wpf
 
         #endregion
 
+        #region Launched
+
+        /// <summary>
+        /// 插件已启动事件。
+        /// </summary>
+        public event EventHandler Launched;
+
+        /// <summary>
+        /// 触发插件启动事件。
+        /// </summary>
+        private void OnLaunched()
+        {
+            if (Launched != null)
+            {
+                Launched(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region  Closed
+
+        /// <summary>
+        /// 插件已关闭事件。
+        /// </summary>
+        public event EventHandler Closed;
+
+        /// <summary>
+        /// 触发插件关闭事件。
+        /// </summary>
+        private void OnClosed()
+        {
+            if (Closed != null)
+            {
+                Closed(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region Actived 
+
+        /// <summary>
+        /// 插件已激活事件。
+        /// </summary>
+        public event EventHandler Actived;
+
+        /// <summary>
+        /// 触发插件激活事件。
+        /// </summary>
+        private void OnActived()
+        {
+            if (Actived != null)
+            {
+                Actived(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region Inactived 
+
+        /// <summary>
+        /// 插件未激活事件。
+        /// </summary>
+        public event EventHandler Inactived;
+
+        /// <summary>
+        /// 触发插件未激活事件。
+        /// </summary>
+        private void OnInactived()
+        {
+            if (Inactived != null)
+            {
+                Inactived(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Fields
@@ -162,7 +242,24 @@ namespace Tumbler.Addin.Wpf
                     proxy.Transceiver = new InternalMessageTransceiver(proxy);
                 }
             }
-            IsActived = addin != null;
+            if (addin != null)
+            {
+                IsActived = true;
+                OnActived();
+            }
+            else
+            {
+                IsActived = false;
+            }
+        }
+
+        /// <summary>
+        /// 询问激活区需要的启动条件。
+        /// </summary>
+        /// <returns>启动条件列表。</returns>
+        public virtual IEnumerable<ILaunchCondition> AskLaunchConditions()
+        {
+            return null;
         }
 
         /// <summary>
@@ -172,6 +269,7 @@ namespace Tumbler.Addin.Wpf
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
             IsLaunched = LaunchCore();
+            OnLaunched();
         }
 
         /// <summary>
@@ -180,20 +278,9 @@ namespace Tumbler.Addin.Wpf
         public void Close()
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
-            if(CloseCore())
-            {
-                Cleanup(false);
-            }
-        }
-
-        /// <summary>
-        /// 清理资源。
-        /// </summary>
-        /// <param name="isInactivate">是否是插件非激活时的清理操作。</param>
-        public virtual void Cleanup(Boolean isInactivate)
-        {
             IsLaunched = false;
-            if (isInactivate) IsActived = false;
+            Cleanup();
+            OnClosed();
         }
 
         /// <summary>
@@ -202,20 +289,16 @@ namespace Tumbler.Addin.Wpf
         public void Inactive()
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
-            if (InactiveCore())
-            {
-                Cleanup(true);
-            }
+            IsLaunched = false;
+            IsActived = false;
+            Cleanup();
+            AddinManager.Unload(Addin);
+            OnInactived();
         }
 
         #endregion
 
         #region Procatectd
-
-        /// <summary>
-        /// 使插件变为未激活时的状态。
-        /// </summary>
-        protected abstract Boolean InactiveCore();
 
         /// <summary>
         /// 创建插件的视图。
@@ -231,10 +314,11 @@ namespace Tumbler.Addin.Wpf
         protected abstract Boolean LaunchCore();
 
         /// <summary>
-        /// 关闭插件。
+        /// 清理资源。
         /// </summary>
-        /// <returns>终止成功返回true，否则返回false。</returns>
-        protected abstract Boolean CloseCore();
+        protected virtual void Cleanup()
+        {
+        }
 
         #endregion
 

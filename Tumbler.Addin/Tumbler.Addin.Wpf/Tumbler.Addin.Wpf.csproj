@@ -47,6 +47,7 @@
     <Compile Include="AddinActivatorBase.cs" />
     <Compile Include="InternalMessageExtension.cs" />
     <Compile Include="IWpfAddin.cs" />
+    <Compile Include="ILaunchCondition.cs" />
     <Compile Include="WpfAddinBase.cs" />
     <Compile Include="WpfAddinConfigParser.cs" />
     <Compile Include="WpfAddinInfo.cs" />

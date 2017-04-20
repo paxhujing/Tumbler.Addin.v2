@@ -85,7 +85,7 @@ namespace Tumbler.Addin.Wpf
         [LoaderOptimization(LoaderOptimization.MultiDomain)]
         internal void TransmitInternalMessage(InternalMessage message)
         {
-            OnReceiveInternalMessage(message);
+            OnReceiveInternalMessage(message); 
         }
 
         #endregion
