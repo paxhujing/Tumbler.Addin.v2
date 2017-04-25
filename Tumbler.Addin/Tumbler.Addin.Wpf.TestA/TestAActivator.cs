@@ -15,20 +15,10 @@ namespace Tumbler.Addin.Wpf.TestA
             return true;
         }
 
-        protected override bool CloseCore()
-        {
-            return true;
-        }
-
 
         protected override FrameworkElement CreateView(IAddin addin)
         {
             return new Counter();
-        }
-
-        protected override bool InactiveCore()
-        {
-            return true;
         }
     }
 }

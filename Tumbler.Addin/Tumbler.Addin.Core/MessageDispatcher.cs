@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,17 +18,12 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 消息队列。
         /// </summary>
-        private readonly Queue<Message> _queue;
+        private readonly ConcurrentQueue<Message> _queue;
 
         /// <summary>
         /// 消息调度任务。
         /// </summary>
         private Task _messageDispathTask;
-
-        /// <summary>
-        /// 同步对象。
-        /// </summary>
-        private SemaphoreSlim _sync;
 
         /// <summary>
         /// 回调方法。
@@ -46,7 +42,7 @@ namespace Tumbler.Addin.Core
         {
             if (target == null) throw new ArgumentNullException("target");
             _target = target;
-            _queue = new Queue<Message>();
+            _queue = new ConcurrentQueue<Message>();
         }
 
         #endregion
@@ -72,7 +68,6 @@ namespace Tumbler.Addin.Core
         {
             if (_messageDispathTask == null)
             {
-                _sync = new SemaphoreSlim(0, 3);
                 _messageDispathTask = new Task(DispathMessage, TaskCreationOptions.LongRunning);
                 IsRuning = true;
                 _messageDispathTask.Start();
@@ -88,7 +83,6 @@ namespace Tumbler.Addin.Core
             if (_messageDispathTask != null && _messageDispathTask.Status == TaskStatus.Running)
             {
                 IsRuning = false;
-                _sync.Release();
             }
         }
 
@@ -101,7 +95,6 @@ namespace Tumbler.Addin.Core
         {
             if (!IsRuning) return;
             _queue.Enqueue(message);
-            _sync.Release();
         }
 
         #endregion
@@ -117,15 +110,16 @@ namespace Tumbler.Addin.Core
             Message message;
             while (IsRuning)
             {
-                _sync.Wait();
-                if (_queue.Count == 0) continue;
-                message = _queue.Dequeue();
-                _target.OnReceive(message);
+                if (_queue.Count == 0)
+                {
+                    Thread.Sleep(100);
+                }
+                if (_queue.TryDequeue(out message))
+                {
+                    _target.OnReceive(message);
+                }
             }
             _messageDispathTask = null;
-            _queue.Clear();
-            _sync.Dispose();
-            _sync = null;
         }
 
         #endregion
