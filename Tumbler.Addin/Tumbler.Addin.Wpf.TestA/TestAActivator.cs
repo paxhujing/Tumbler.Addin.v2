@@ -10,7 +10,7 @@ namespace Tumbler.Addin.Wpf.TestA
 {
     public class TestAActivator : AddinActivatorBase
     {
-        protected override bool LaunchCore()
+        protected override bool LaunchCore(Object arg)
         {
             return true;
         }

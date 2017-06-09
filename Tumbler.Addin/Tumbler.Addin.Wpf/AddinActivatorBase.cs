@@ -265,10 +265,11 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 启动插件。
         /// </summary>
-        public void Launch()
+        /// <param name="arg">启动参数。</param>
+        public void Launch(Object arg = null)
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
-            IsLaunched = LaunchCore();
+            IsLaunched = LaunchCore(arg);
             OnLaunched();
         }
 
@@ -310,8 +311,9 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 启动插件。
         /// </summary>
+        /// <param name="arg">启动参数。</param>
         /// <returns>启动成功返回true，否则返回false。</returns>
-        protected abstract Boolean LaunchCore();
+        protected abstract Boolean LaunchCore(Object arg);
 
         /// <summary>
         /// 清理资源。

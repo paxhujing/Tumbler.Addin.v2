@@ -32,7 +32,12 @@ namespace Tumbler.Addin.Wpf
         /// <summary>
         /// 激活器的类型限定名。
         /// </summary>
-        public String ActivatorType { get; internal set; }
+        public String ActivatorType { get; private set; }
+
+        /// <summary>
+        /// 类别。
+        /// </summary>
+        public String Category { get; private set; }
 
         #endregion
 
@@ -49,6 +54,7 @@ namespace Tumbler.Addin.Wpf
         {
             base.Initialize(root, location);
             ActivatorType = root.Attribute("activatorType")?.Value;
+            Category = root.Element("info")?.Element("category")?.Value;
         }
 
         #endregion

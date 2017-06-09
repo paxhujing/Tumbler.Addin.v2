@@ -30,6 +30,8 @@ namespace Tumbler.Addin.Core
         /// </summary>
         private readonly IMessageTarget _target;
 
+        private static Int32 MaxCount = 10;
+
         #endregion
 
         #region Constructors
@@ -94,6 +96,11 @@ namespace Tumbler.Addin.Core
         internal void Queue(Message message)
         {
             if (!IsRuning) return;
+            if (_queue.Count == MaxCount)
+            {
+                System.Diagnostics.Debug.WriteLine("Message queue full");
+                return;
+            }
             _queue.Enqueue(message);
         }
 
@@ -110,6 +117,7 @@ namespace Tumbler.Addin.Core
             Message message;
             while (IsRuning)
             {
+                System.Diagnostics.Debug.WriteLine("message queue count: {0}", _queue.Count);
                 if (_queue.Count == 0)
                 {
                     Thread.Sleep(100);

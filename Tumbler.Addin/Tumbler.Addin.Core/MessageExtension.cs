@@ -284,10 +284,6 @@ namespace Tumbler.Addin.Core
                     }
                     break;
                 case ContentType.Object:
-                    if (!AppDomain.CurrentDomain.IsDefaultAppDomain())
-                    {
-                        throw new ArgumentException("The object transmition is not in default appdomain");
-                    }
                     break;
                 case ContentType.None:
                 default:
