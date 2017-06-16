@@ -229,12 +229,6 @@ namespace Tumbler.Addin.Wpf
             IAddin addin = AddinManager.LoadAddin(_info);
             if (addin != null)
             {
-                FrameworkElement view = CreateView(addin);
-                if (view != null)
-                {
-                    view.Tag = this;
-                    View = view;
-                }
                 Addin = addin;
                 WpfAddinProxy proxy = addin as WpfAddinProxy;
                 if (proxy != null)
@@ -269,6 +263,12 @@ namespace Tumbler.Addin.Wpf
         public void Launch(Object arg = null)
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
+            FrameworkElement view = CreateView(Addin);
+            if (view != null)
+            {
+                view.Tag = this;
+                View = view;
+            }
             IsLaunched = LaunchCore(arg);
             OnLaunched();
         }
@@ -280,6 +280,7 @@ namespace Tumbler.Addin.Wpf
         {
             if (!IsActived) throw new InvalidOperationException("The activator need be actived");
             IsLaunched = false;
+            View = null;
             Cleanup();
             OnClosed();
         }

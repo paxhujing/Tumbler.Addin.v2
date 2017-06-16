@@ -18,7 +18,7 @@ namespace Tumbler.Addin.Core
         /// <summary>
         /// 消息队列。
         /// </summary>
-        private readonly ConcurrentQueue<Message> _queue;
+        private readonly Queue<Message> _queue;
 
         /// <summary>
         /// 消息调度任务。
@@ -32,6 +32,8 @@ namespace Tumbler.Addin.Core
 
         private static Int32 MaxCount = 10;
 
+        private readonly ManualResetEventSlim _syncEvent;
+
         #endregion
 
         #region Constructors
@@ -44,7 +46,8 @@ namespace Tumbler.Addin.Core
         {
             if (target == null) throw new ArgumentNullException("target");
             _target = target;
-            _queue = new ConcurrentQueue<Message>();
+            _queue = new Queue<Message>(MaxCount);
+            _syncEvent = new ManualResetEventSlim(false);
         }
 
         #endregion
@@ -101,7 +104,14 @@ namespace Tumbler.Addin.Core
                 System.Diagnostics.Debug.WriteLine("Message queue full");
                 return;
             }
-            _queue.Enqueue(message);
+            lock (_queue)
+            {
+                _queue.Enqueue(message);
+                if (_queue.Count == 1)
+                {
+                    _syncEvent.Set();
+                }
+            }
         }
 
         #endregion
@@ -118,14 +128,16 @@ namespace Tumbler.Addin.Core
             while (IsRuning)
             {
                 System.Diagnostics.Debug.WriteLine("message queue count: {0}", _queue.Count);
-                if (_queue.Count == 0)
+                _syncEvent.Wait();
+                lock (_queue)
                 {
-                    Thread.Sleep(100);
+                    message = _queue.Dequeue();
+                    if (_queue.Count == 0)
+                    {
+                        _syncEvent.Reset();
+                    }
                 }
-                if (_queue.TryDequeue(out message))
-                {
-                    _target.OnReceive(message);
-                }
+                _target.OnReceive(message);
             }
             _messageDispathTask = null;
         }
